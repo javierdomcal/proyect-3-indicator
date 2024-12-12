@@ -1,0 +1,11 @@
+test_input
+$wfxfile
+ne10106311+Gp.wfx
+$logfile
+no
+$cubefile
+.false.
+$Coulomb Hole !select an option
+ontop          !C1, all, c1approx,intra
+$On top
+ne10106311+Gp.dm2p
