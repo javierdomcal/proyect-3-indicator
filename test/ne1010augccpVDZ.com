@@ -8,6 +8,4 @@ ne1010augccpVDZ neon CASSCF(10,10) aug-cc-pVDZ
 0 1
 Ne 0.0 0.0 0.0
 
-
 ne1010augccpVDZ.wfx
-

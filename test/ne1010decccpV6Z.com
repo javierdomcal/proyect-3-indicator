@@ -8,6 +8,4 @@ ne1010decccpV6Z neon CASSCF(10,10) dec-cc-pV6Z
 0 1
 Ne 0.0 0.0 0.0
 
-
 ne1010decccpV6Z.wfx
-
