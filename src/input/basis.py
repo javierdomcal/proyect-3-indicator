@@ -5,6 +5,7 @@ from config.settings import UTILS_DIR
 import re
 import pandas as pd
 
+
 class BasisSet:
     def __init__(self, basis_name, omega=None):
         """
@@ -36,8 +37,10 @@ class BasisSet:
         """
         match = re.match(r"(\d+)([A-Z]+)$", self.basis_name)
         if match:
-            self.n = int(match.group(1)) 
-            self.angular_momentum = match.group(2)  # Extracts angular momentum part (SPDF, SPD, etc.)
+            self.n = int(match.group(1))
+            self.angular_momentum = match.group(
+                2
+            )  # Extracts angular momentum part (SPDF, SPD, etc.)
             return True
         return False
 
@@ -49,12 +52,17 @@ class BasisSet:
         try:
             df = pd.read_csv(csv_path)
             # Filter row based on n, omega, and angular_momentum
-            row = df[(df["n"] == self.n) & (abs(df["omega"].astype(float) - self.omega) < 0.00001)]
+            row = df[
+                (df["n"] == self.n)
+                & (abs(df["omega"].astype(float) - self.omega) < 0.00001)
+            ]
             if row.empty:
                 raise ValueError("Coefficients not found for the specified parameters.")
             self.alpha = row.iloc[0]["alpha"]
             self.beta = row.iloc[0]["beta"]
-            print(f"Even-tempered coefficients loaded: alpha={self.alpha}, beta={self.beta}")
+            print(
+                f"Even-tempered coefficients loaded: alpha={self.alpha}, beta={self.beta}"
+            )
         except FileNotFoundError:
             print(f"CSV file {csv_path} not found.")
         except Exception as e:
@@ -72,7 +80,7 @@ class BasisSet:
 
 if __name__ == "__main__":
     print("Testing BasisSet class...")
-    
+
     # Test 1: Standard basis example
     print("\nStandard basis test:")
     standard_basis = BasisSet("6-31G")
@@ -89,7 +97,7 @@ if __name__ == "__main__":
         invalid_basis = BasisSet("8SPDF")
     except ValueError as e:
         print(f"Error: {e}")
-        
+
     # Test 4: Non-existent coefficients
     print("\nNon-existent coefficients test:")
     try:

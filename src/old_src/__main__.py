@@ -10,7 +10,7 @@ from .job_manager import *
 from .flux_manager import *
 
 # Define package version
-__version__ = '0.1.0'
+__version__ = "0.1.0"
 
 # src/utils/__init__.py
 """

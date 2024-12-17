@@ -1,6 +1,7 @@
 import os
 import logging
 
+
 class SlurmManager:
     def __init__(self, slurm_dir="slurm_scripts"):
         self.slurm_dir = slurm_dir
@@ -25,7 +26,7 @@ g16 < {scratch_dir}/{job_name}.com > {scratch_dir}/{job_name}.log
 cd /dipc/javidom/proyect-3-indicator/{job_name}
 pwd
 """
-        with open(slurm_script_path, 'w') as f:
+        with open(slurm_script_path, "w") as f:
             f.write(slurm_content)
 
         logging.info(f"Generated Gaussian SLURM script at {slurm_script_path}")
@@ -50,7 +51,7 @@ module load intel/2020a
 cd /dipc/javidom/proyect-3-indicator/{job_name}
 
 """
-        with open(slurm_script_path, 'w') as f:
+        with open(slurm_script_path, "w") as f:
             f.write(slurm_content)
 
         logging.info(f"Generated DMN SLURM script at {slurm_script_path}")
@@ -76,7 +77,7 @@ module load intel
 cd /dipc/javidom/proyect-3-indicator/{job_name}
 
 """
-        with open(slurm_script_path, 'w') as f:
+        with open(slurm_script_path, "w") as f:
             f.write(slurm_content)
 
         logging.info(f"Generated DM2PRIM SLURM script at {slurm_script_path}")
@@ -102,7 +103,7 @@ module load intel
 cd /dipc/javidom/proyect-3-indicator/{job_name}
 
 """
-        with open(slurm_script_path, 'w') as f:
+        with open(slurm_script_path, "w") as f:
             f.write(slurm_content)
 
         logging.info(f"Generated INCA SLURM script at {slurm_script_path}")

@@ -2,6 +2,7 @@ import logging
 from job_manager import JobManager
 from file_management import FileManager
 
+
 class FluxManager:
     def __init__(self, connection, file_manager, job_manager):
         """
@@ -18,12 +19,12 @@ class FluxManager:
         Logs a completed flux into an in-memory dictionary instead of a CSV.
         """
         self.completed_fluxes[job_name] = {
-            'molecule': molecule,
-            'method': method,
-            'base': base,
-            'status': status,
-            'runtime': runtime,
-            'errors': errors
+            "molecule": molecule,
+            "method": method,
+            "base": base,
+            "status": status,
+            "runtime": runtime,
+            "errors": errors,
         }
         logging.info(f"Flux {job_name} logged with status: {status}")
 
@@ -31,34 +32,47 @@ class FluxManager:
         """
         Checks if the given flux has already been completed successfully.
         """
-        return job_name in self.completed_fluxes and self.completed_fluxes[job_name]['status'] == "completed"
+        return (
+            job_name in self.completed_fluxes
+            and self.completed_fluxes[job_name]["status"] == "completed"
+        )
 
     def handle_flux(self, jobs):
         """
         Handles the execution of a flux, including launching and monitoring jobs sequentially.
-        
+
         Parameters:
         - jobs: List of job configurations (each job being a dictionary with molecule, method, base, etc.)
         """
         try:
             # Execute jobs in sequence
             for job in jobs:
-                job_name = job['job_name']
-                
+                job_name = job["job_name"]
+
                 if self.check_if_flux_completed(job_name):
-                    logging.info(f"Flux {job_name} already completed. Skipping execution.")
+                    logging.info(
+                        f"Flux {job_name} already completed. Skipping execution."
+                    )
                     continue
 
-                com_file_path = job['com_file_path']
+                com_file_path = job["com_file_path"]
                 self.file_manager.create_calculation_directory(job_name)
                 self.job_manager.handle_job(job_name, com_file_path)
 
                 # Once the job is complete, log the flux as completed
-                self.log_flux(job_name, job['molecule'], job['method'], job['base'], "completed", "runtime_placeholder")
-        
+                self.log_flux(
+                    job_name,
+                    job["molecule"],
+                    job["method"],
+                    job["base"],
+                    "completed",
+                    "runtime_placeholder",
+                )
+
         except Exception as e:
             logging.error(f"Error during flux execution: {e}")
             raise
+
 
 if __name__ == "__main__":
     # Set up connection, file management, and job management systems
@@ -84,18 +98,25 @@ if __name__ == "__main__":
 
         # Create Gaussian input file (.com) for the job
         job_name = "helium"
-        generator = InputFileGenerator(config="SP", molecule=helium, method=hf_method, basis=sto3g_basis, title="Helium SP Calculation", input_type="gaussian")
+        generator = InputFileGenerator(
+            config="SP",
+            molecule=helium,
+            method=hf_method,
+            basis=sto3g_basis,
+            title="Helium SP Calculation",
+            input_type="gaussian",
+        )
         com_file_path = f"test/{job_name}.com"
         generator.generate_input_file(com_file_path)
 
         # Example list of jobs in a flux
         jobs = [
             {
-                'job_name': job_name,
-                'com_file_path': com_file_path,
-                'molecule': "helium",
-                'method': "HF",
-                'base': "sto-3g"
+                "job_name": job_name,
+                "com_file_path": com_file_path,
+                "molecule": "helium",
+                "method": "HF",
+                "base": "sto-3g",
             }
         ]
 

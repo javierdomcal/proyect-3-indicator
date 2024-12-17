@@ -4,6 +4,7 @@ from molecule import Molecule
 from method import Method
 from basis import BasisSet
 
+
 def create_test_calculations():
     # Define test directory paths
     local_test_dir = "test"
@@ -17,11 +18,14 @@ def create_test_calculations():
     sto3g_basis = BasisSet("sto-3g")
 
     sp_generator = GaussianInputGenerator(
-        config="SP", molecule=hydrogen_atom, method=hf_method, basis=sto3g_basis, title="Hydrogen Atom Calculation"
+        config="SP",
+        molecule=hydrogen_atom,
+        method=hf_method,
+        basis=sto3g_basis,
+        title="Hydrogen Atom Calculation",
     )
     sp_file = os.path.join(local_test_dir, "hydrogen_sp.com")
     sp_generator.generate_input_file(sp_file)
-
 
     print(f"Generated test file:\n- {sp_file}")
 

@@ -8,6 +8,7 @@ from file_management import FileManager
 from slurm_manager import SlurmManager
 import pdb
 
+
 class JobManager:
     def __init__(self, connection, file_manager, slurm_manager, log_dir="logs"):
         """
@@ -23,7 +24,7 @@ class JobManager:
     def submit_job(self, job_name, step=None):
         """
         Submits a SLURM job using the generated script.
-        
+
         Parameters:
         - job_name: The base name of the job (e.g., 'helium')
         - step: An optional step name (e.g., 'dmn', 'dm2prim', etc.) to append to job name
@@ -31,9 +32,10 @@ class JobManager:
         # If there's a step, modify the job_name accordingly
         full_job_name = job_name if step is None else f"{job_name}_{step}"
 
-
         # Submit the SLURM job using the script in the scratch directory
-        command = f"sbatch {self.connection.scratch_dir}/{job_name}/{full_job_name}.slurm"
+        command = (
+            f"sbatch {self.connection.scratch_dir}/{job_name}/{full_job_name}.slurm"
+        )
         output = self.connection.execute_command(command)
 
         if "Submitted batch job" in output:
@@ -43,13 +45,12 @@ class JobManager:
         else:
             raise RuntimeError(f"Failed to submit job. Command output: {output}")
 
-
     @log_execution_time
     def monitor_job(self, job_id, job_name=None, step=None):
         """
         Monitors the status of a SLURM job until it completes.
         Polls job status at exponentially increasing intervals (1, 2, 4, ... up to 60 seconds).
-        
+
         Parameters:
         - job_id: The SLURM job ID to monitor.
         - job_name: The base name of the job (e.g., 'helium'). Optional, but useful for logging.
@@ -90,11 +91,15 @@ class JobManager:
 
                     # Log job completion and runtime details
                     self.log_job_completion(job_id, start_time, end_time, runtime)
-                    logging.info(f"Job {job_id} for {full_job_name} completed after {runtime}.")
+                    logging.info(
+                        f"Job {job_id} for {full_job_name} completed after {runtime}."
+                    )
                     return "COMPLETED"
-                
+
                 # Job is still running, log the status and wait
-                logging.info(f"Job {job_id} for {full_job_name} not completed yet, checking again in {delay} seconds.")
+                logging.info(
+                    f"Job {job_id} for {full_job_name} not completed yet, checking again in {delay} seconds."
+                )
                 time.sleep(delay)
 
                 # Exponentially increase the delay, but cap it at max_delay (60 seconds)
@@ -103,18 +108,20 @@ class JobManager:
 
             except Exception as e:
                 # Log any errors encountered during monitoring
-                logging.error(f"Error while monitoring job {job_id} for {full_job_name}: {e}")
+                logging.error(
+                    f"Error while monitoring job {job_id} for {full_job_name}: {e}"
+                )
                 raise RuntimeError(f"Failed to monitor job {job_id}. Error: {e}")
-
-
 
     def log_job_completion(self, job_id, start_time, end_time, runtime):
         """
         Logs job completion details.
         """
         log_path = os.path.join(self.log_dir, "job_logs.txt")
-        with open(log_path, 'a') as f:
-            f.write(f"Job ID: {job_id}\nStart Time: {start_time}\nEnd Time: {end_time}\nRuntime: {runtime}\n\n")
+        with open(log_path, "a") as f:
+            f.write(
+                f"Job ID: {job_id}\nStart Time: {start_time}\nEnd Time: {end_time}\nRuntime: {runtime}\n\n"
+            )
         logging.info(f"Logged completion for job {job_id}.")
 
     @log_execution_time
@@ -130,13 +137,17 @@ class JobManager:
             self.file_manager.upload_file_to_colony(com_file_path, job_name)
 
             # Generate the SLURM script
-            slurm_script_path = self.slurm_manager.generate_gaussian_slurm(job_name, self.file_manager.get_scratch_dir(job_name))
+            slurm_script_path = self.slurm_manager.generate_gaussian_slurm(
+                job_name, self.file_manager.get_scratch_dir(job_name)
+            )
 
             self.file_manager.upload_file_to_colony(slurm_script_path, job_name)
 
             # Move the Gaussian input and SLURM script to scratch
             self.file_manager.move_to_scratch(job_name, os.path.basename(com_file_path))
-            self.file_manager.move_to_scratch(job_name, os.path.basename(slurm_script_path))
+            self.file_manager.move_to_scratch(
+                job_name, os.path.basename(slurm_script_path)
+            )
 
             # Submit the job
             job_id = self.submit_job(job_name)
@@ -150,6 +161,7 @@ class JobManager:
         except Exception as e:
             logging.error(f"Error handling job {job_name}: {e}")
             raise
+
 
 if __name__ == "__main__":
     from src.molecule import Molecule
@@ -174,7 +186,14 @@ if __name__ == "__main__":
         sto3g_basis = BasisSet("sto-3g")
 
         # Generate the Gaussian input file
-        generator = InputFileGenerator(config="SP", molecule=hydrogen_atom, method=hf_method, basis=sto3g_basis, title="Hydrogen SP Calculation", input_type="gaussian")
+        generator = InputFileGenerator(
+            config="SP",
+            molecule=hydrogen_atom,
+            method=hf_method,
+            basis=sto3g_basis,
+            title="Hydrogen SP Calculation",
+            input_type="gaussian",
+        )
         com_file_path = "test/hydrogen_sp.com"
         generator.generate_input_file(com_file_path)
 

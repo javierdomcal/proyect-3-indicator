@@ -1,9 +1,13 @@
 import os
 import logging
 from cluster_connection import ClusterConnection
-from logging_config import setup_logging, log_execution_time  # Assuming your custom logging module is logging_config
+from logging_config import (
+    setup_logging,
+    log_execution_time,
+)  # Assuming your custom logging module is logging_config
 import pandas as pd
 import paramiko
+
 
 class FileManager:
     def __init__(self, connection):
@@ -58,7 +62,9 @@ class FileManager:
         if not os.path.exists(local_path):
             raise ValueError(f"Local file {local_path} does not exist.")
 
-        remote_path = os.path.join(self.get_colony_dir(title), os.path.basename(local_path))
+        remote_path = os.path.join(
+            self.get_colony_dir(title), os.path.basename(local_path)
+        )
         try:
             self.connection.upload_file(local_path, remote_path)
             logging.info(f"Uploaded {local_path} to {remote_path}")
@@ -70,11 +76,11 @@ class FileManager:
     def download_file_from_colony(self, filename, local_dir, title):
         """
         Downloads a file from the colony (remote cluster) to the local machine.
-        
+
         Args:
             filename (str): The name of the file in the colony directory.
             local_dir (str): The local directory where the file should be saved.
-        
+
         Raises:
             ValueError: If the specified local directory does not exist.
             Exception: For any connection or file transfer issues.
@@ -109,7 +115,9 @@ class FileManager:
             self.connection.execute_command(f"chmod -R 777 {scratch_path}")
             logging.info(f"Copied {filename} from {colony_path} to {scratch_path}")
         except Exception as e:
-            logging.error(f"Failed to copy {filename} from {colony_path} to {scratch_path}: {e}")
+            logging.error(
+                f"Failed to copy {filename} from {colony_path} to {scratch_path}: {e}"
+            )
             raise
 
     @log_execution_time
@@ -127,7 +135,9 @@ class FileManager:
 
             logging.info(f"Retrieved results from {scratch_dir} to {colony_dir}")
         except Exception as e:
-            logging.error(f"Failed to retrieve results from {scratch_dir} to {colony_dir}: {e}")
+            logging.error(
+                f"Failed to retrieve results from {scratch_dir} to {colony_dir}: {e}"
+            )
             raise
 
     @log_execution_time
@@ -155,42 +165,47 @@ class FileManager:
             logging.error(f"Failed to change directory to {new_dir}: {e}")
             raise
 
-
-    def get_results(self, job_name, local_dir='/tmp'):
+    def get_results(self, job_name, local_dir="/tmp"):
         """
         Retrieves the 'ontop.dat' file from the colony directory and loads it into a DataFrame.
-        
+
         Args:
             job_name (str): The name of the job associated with the file.
             local_dir (str): The local directory to save the downloaded file.
-            
+
         Returns:
             pd.DataFrame: The DataFrame containing data from the downloaded file.
         """
         try:
             logging.info(f"Retrieving results for {job_name}")
-            
+
             # Ensure the local directory exists
             if not os.path.exists(local_dir):
                 os.makedirs(local_dir)
-            
+
             # Use download_file_from_colony to download 'ontop.dat' to local_dir
-            self.download_file_from_colony(filename='ontop.dat', local_dir=local_dir, title=job_name)
-            
+            self.download_file_from_colony(
+                filename="ontop.dat", local_dir=local_dir, title=job_name
+            )
+
             # Load the downloaded file into a pandas DataFrame
-            local_file_path = os.path.join(local_dir, 'ontop.dat')
+            local_file_path = os.path.join(local_dir, "ontop.dat")
             df = pd.read_csv(local_file_path)
-            logging.info(f"Results for {job_name} retrieved and loaded into a pandas DataFrame.")
-            
+            logging.info(
+                f"Results for {job_name} retrieved and loaded into a pandas DataFrame."
+            )
+
             return df
         except Exception as e:
             logging.error(f"Error retrieving results for {job_name}: {e}")
             raise
 
-    def transfer_between_clusters(self, source_conn, job_name, file_name = None, extension='.log'):
+    def transfer_between_clusters(
+        self, source_conn, job_name, file_name=None, extension=".log"
+    ):
         """
         Transfers a file from one cluster to another via local temporary storage.
-        
+
         Parameters:
         - source_conn (ClusterConnection): Source cluster connection.
         - target_conn (ClusterConnection): Target cluster connection.
@@ -204,19 +219,22 @@ class FileManager:
         target_path = self.get_colony_dir(job_name)
         source_path = os.path.join(source_conn.colony_dir, job_name)
 
-        source_conn.download_file(source_path+'/'+file_name+extension, temp_path)
-        self.connection.upload_file(temp_path, target_path+'/'+file_name+extension)
+        source_conn.download_file(source_path + "/" + file_name + extension, temp_path)
+        self.connection.upload_file(
+            temp_path, target_path + "/" + file_name + extension
+        )
         os.remove(temp_path)
-        logging.info(f"Transferred {source_path} from {source_conn.hostname} to {target_path} on {self.connection.hostname}.")
-
+        logging.info(
+            f"Transferred {source_path} from {source_conn.hostname} to {target_path} on {self.connection.hostname}."
+        )
 
     def read_remote_file(self, file_path):
         """
         Reads a file from the remote cluster and returns its contents.
-        
+
         Args:
             file_path (str): Absolute path to the file on the remote cluster
-        
+
         Returns:
             str: Contents of the remote file
         """
@@ -242,7 +260,7 @@ if __name__ == "__main__":
     from basis import BasisSet
 
     from input_generator import InputFileGenerator
-    
+
     # Setup logging before starting
     setup_logging(verbose_level=1)  # Use appropriate verbose level
 
@@ -255,7 +273,14 @@ if __name__ == "__main__":
         molecule = Molecule(name="hydrogen_atom", multiplicity=2)
         method = Method("HF")
         basis = BasisSet("sto-3g")
-        calc = InputFileGenerator(config="SP", molecule=molecule, method=method, basis=basis, title=title, input_type="gaussian")
+        calc = InputFileGenerator(
+            config="SP",
+            molecule=molecule,
+            method=method,
+            basis=basis,
+            title=title,
+            input_type="gaussian",
+        )
         calc.generate_input_file(f"test/{title}.com")
 
         # Create directories in colony and scratch

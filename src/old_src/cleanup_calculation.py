@@ -2,6 +2,7 @@ import os
 from cluster_connection import ClusterConnection
 from file_management import FileManager
 
+
 class CalculationCleaner:
     def __init__(self, file_manager, slurm_dir="slurm_scripts", test_dir="test"):
         """
@@ -24,14 +25,14 @@ class CalculationCleaner:
         - calculation_name (str): Name of the calculation folder to delete.
         """
         scratch_dir = self.file_manager.get_scratch_dir(calculation_name)
-        
+
         # Command to delete the directory
         command = f"rm -rf {scratch_dir}"
         print(f"Executing: {command}")
-        
+
         # Execute the command and capture output/errors
         output = self.file_manager.connection.execute_command(command)
-        
+
         # Log the result or any errors
         if output:
             print(f"Error during deletion: {output}")
@@ -39,9 +40,11 @@ class CalculationCleaner:
             # Check if directory still exists after attempting deletion
             check_command = f"test -d {scratch_dir} && echo 'exists' || echo 'deleted'"
             check_output = self.file_manager.connection.execute_command(check_command)
-            
+
             if "exists" in check_output:
-                print(f"Directory {scratch_dir} still exists. Check permissions or active jobs.")
+                print(
+                    f"Directory {scratch_dir} still exists. Check permissions or active jobs."
+                )
             else:
                 print(f"Successfully deleted {scratch_dir} from scratch.")
 

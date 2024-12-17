@@ -1,5 +1,5 @@
 import os
-from input_specification import InputSpecification
+from input.specification import InputSpecification
 
 
 class InputFileGenerator:
@@ -167,3 +167,49 @@ class InputFileGenerator:
             f.write(f"{self.title}.dm2p\n")
 
         print(f"INCA input file '{filename}' generated successfully.")
+
+
+if __name__ == "__main__":
+    # Test the input generator
+    from input.molecules import Molecule
+    from input.methods import Method
+    from input.basis import BasisSet
+
+    try:
+        # Test with basic molecule
+        molecule = Molecule(name="water")
+        method = Method("HF")
+        basis = BasisSet("sto-3g")
+        
+        # Test Gaussian input generation
+        print("\nTesting Gaussian input generation:")
+        gaussian_gen = InputFileGenerator(
+            config="SP",
+            molecule=molecule,
+            method=method,
+            basis=basis,
+            title="test_gaussian"
+        )
+        gaussian_gen.generate_input_file()
+
+        # Test INCA input generation
+        print("\nTesting INCA input generation:")
+        inca_gen = InputFileGenerator(
+            config="SP",
+            molecule=molecule,
+            method=method,
+            basis=basis,
+            title="test_inca",
+            input_type="inca"
+        )
+        inca_gen.generate_input_file()
+
+    except Exception as e:
+        print(f"Test failed: {e}")
+
+    # Clean up test files
+    test_files = ["test_gaussian.com", "test_inca.inp"]
+    for file in test_files:
+        if os.path.exists(file):
+            os.remove(file)
+            print(f"Cleaned up {file}")

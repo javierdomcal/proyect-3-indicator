@@ -1,3 +1,3 @@
 from .settings import PROJECT_ROOT, UTILS_DIR, MOLECULES_DIR
 
-__all__ = ['PROJECT_ROOT', 'UTILS_DIR', 'MOLECULES_DIR']
+__all__ = ["PROJECT_ROOT", "UTILS_DIR", "MOLECULES_DIR"]
