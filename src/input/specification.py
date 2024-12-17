@@ -1,0 +1,102 @@
+# src/input/specification.py
+
+import logging
+from input.molecules import Molecule
+from input.methods import Method
+from input.basis import BasisSet
+
+
+class InputSpecification:
+    # Hardcoded dictionary for imported basis sets and their specific atoms
+    imported_basis = {
+        "aug-pc-4": ["He", "Ne", "Ar"],
+        "dec-pc-4": ["He", "Ne", "Ar"],
+        "aug-pc-3": ["Ne"],
+        "dec-cc-pv6z": ["Ne"],
+    }
+
+    def __init__(
+        self, molecule, basis, method, title, config="Opt", input_type="gaussian"
+    ):
+        """
+        Initializes the InputSpecification instance.
+
+        Parameters:
+        - molecule (Molecule): An instance of Molecule.
+        - basis (BasisSet): An instance of BasisSet.
+        - method (Method): An instance of Method.
+        - title (str): Title for the calculation.
+        - config (str): Type of calculation, either "Opt" (optimization) or "SP" (single-point).
+        - input_type (str): Type of input file to generate ("gaussian" or "inca").
+        """
+        # Initialize logging
+        logging.basicConfig(level=logging.INFO)
+        self.logger = logging.getLogger(__name__)
+
+        # Validate input instances
+        if not isinstance(molecule, Molecule):
+            raise TypeError("Invalid molecule instance provided.")
+        if not isinstance(basis, BasisSet):
+            raise TypeError("Invalid basis set instance provided.")
+        if not isinstance(method, Method):
+            raise TypeError("Invalid method instance provided.")
+
+        self.molecule = molecule
+        self.basis = basis
+        self.method = method
+        self.title = title
+        self.config = "SP" if self.molecule.count_atoms() <= 1 else config
+        self.input_type = input_type.lower()
+        self.atoms_to_import = []
+
+        self.logger.info(f"Creating input specification for {title}")
+
+        # Validate and initialize parameters
+        self.validate_dependencies()
+        self.atoms_to_import = self.handle_imported_basis()
+
+    def validate_dependencies(self):
+        """
+        Validates compatibility across molecule, basis, and method, especially with shared parameters like omega.
+        Raises errors for inconsistencies.
+        """
+        # Check omega consistency if harmonium molecule and even-tempered basis are used
+        if self.molecule.is_harmonium and self.basis.is_even_tempered:
+            if self.molecule.omega != self.basis.omega:
+                raise ValueError(
+                    "Inconsistent omega values for harmonium molecule and even-tempered basis set."
+                )
+
+        # Check if the selected method is supported for the given molecule and basis set
+        if self.method.is_fullci and self.molecule.count_atoms() > 4:
+            raise ValueError("Full CI method is not supported for molecules with more than 4 atoms.")
+
+        # Additional compatibility checks can be added here if needed
+        self.logger.info("Dependencies validated successfully.")
+
+    def handle_imported_basis(self):
+        """
+        Checks if the basis set is in the hardcoded imported_basis dictionary and prepares the basis set for input generation.
+        """
+        atoms_to_import = []
+        if self.basis.basis_name in self.imported_basis:
+            for atom in self.molecule.unique_atoms():
+                if atom in self.imported_basis[self.basis.basis_name]:
+                    self.basis.is_imported = True
+                    atoms_to_import.append(atom)
+            self.logger.info(
+                f"Imported custom basis set '{self.basis.basis_name}' for atoms: {atoms_to_import}"
+            )
+        else:
+            self.logger.info(f"Using default basis set '{self.basis.basis_name}'.")
+        return atoms_to_import
+
+    def __str__(self):
+        """
+        Returns a summary string of the input specification details.
+        """
+        summary = (
+            f"InputSpecification for {self.title}:\n"
+            f"  Molecule: {self.molecule.get_molecule_description()}\n"
+            f"    Number of atoms: {self.molecule.count_atoms()}\n"
+            f"    Charge: {self.molecule.charge}\n"
