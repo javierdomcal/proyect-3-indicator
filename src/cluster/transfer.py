@@ -4,13 +4,15 @@ Handles file transfers between local system and clusters.
 
 import os
 import logging
-from connection import ClusterConnection
+from cluster.connection import ClusterConnection
+from cluster.command import ClusterCommands
 
 
 class FileTransfer:
     def __init__(self, connection):
         """Initialize with a cluster connection."""
         self.connection = connection
+        self.commands = ClusterCommands(connection)  # Create an instance of ClusterCommands
 
     def upload_file(self, local_path, remote_path):
         """Uploads a file from local system to cluster."""
@@ -27,6 +29,36 @@ class FileTransfer:
 
         self.connection.scp_client.get(remote_path, local_path)
         print(f"Downloaded {remote_path} to {local_path} locally.")
+
+    def move_to_scratch(self, job_name, filename):
+        """Move a file from colony to scratch directory."""
+        colony_path = os.path.join(self.connection.colony_dir, job_name, filename)
+        scratch_path = os.path.join(self.connection.scratch_dir, job_name, filename)
+        
+        # Create scratch directory if it doesn't exist
+        scratch_dir = os.path.dirname(scratch_path)
+        if not self.commands.check_directory_exists(scratch_dir):
+            self.commands.create_directory(scratch_dir)
+        
+        # Move file from colony to scratch
+        command = f"mv {colony_path} {scratch_path}"
+        self.commands.execute_command(command)
+        logging.info(f"Moved {filename} from colony to scratch for {job_name}")
+
+    def move_to_colony(self, job_name, filename):
+        """Move a file from scratch to colony directory."""
+        scratch_path = os.path.join(self.connection.scratch_dir, job_name, filename)
+        colony_path = os.path.join(self.connection.colony_dir, job_name, filename)
+        
+        # Create colony directory if it doesn't exist
+        colony_dir = os.path.dirname(colony_path)
+        if not self.commands.check_directory_exists(colony_dir):
+            self.commands.create_directory(colony_dir)
+        
+        # Move file from scratch to colony
+        command = f"mv {scratch_path} {colony_path}"
+        self.commands.execute_command(command)
+        logging.info(f"Moved {filename} from scratch to colony for {job_name}")
 
     def transfer_between_clusters(self, source_conn, job_name, file_name=None, extension=".log"):
         """Transfers files between clusters via local temporary storage."""
@@ -115,4 +147,3 @@ if __name__ == "__main__":
                     os.remove(path)
         except:
             pass
-

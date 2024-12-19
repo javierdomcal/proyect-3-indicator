@@ -4,8 +4,8 @@ Handles cleanup operations for testing and debugging.
 
 import os
 import logging
-from command import ClusterCommands
-from connection import ClusterConnection
+from cluster.command import ClusterCommands
+from cluster.connection import ClusterConnection
 
 
 class ClusterCleanup:

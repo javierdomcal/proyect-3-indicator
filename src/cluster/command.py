@@ -4,7 +4,7 @@ Handles command execution and file operations on clusters.
 
 import os
 import logging
-from connection import ClusterConnection
+from cluster.connection import ClusterConnection
 
 
 class ClusterCommands:
@@ -70,7 +70,7 @@ class ClusterCommands:
 
 
 if __name__ == "__main__":
-    from cleanup import ClusterCleanup
+    from cluster.cleanup import ClusterCleanup
     
     # Test cluster commands
     try:

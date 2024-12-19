@@ -114,7 +114,7 @@ class InputFileGenerator:
                     )
 
             if wfx:
-                f.write(f"{self.title}.wfx\n\n")
+                f.write(f"{self.title}.wfx\n")
 
         print(f"Gaussian input file '{filename}' generated successfully.")
 

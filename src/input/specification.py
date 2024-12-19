@@ -100,3 +100,76 @@ class InputSpecification:
             f"  Molecule: {self.molecule.get_molecule_description()}\n"
             f"    Number of atoms: {self.molecule.count_atoms()}\n"
             f"    Charge: {self.molecule.charge}\n"
+            f"    Multiplicity: {self.molecule.multiplicity}\n"
+            f"  Basis Set: {self.basis.basis_name}\n"
+            f"    Type: {'Imported' if self.basis.is_imported else 'Standard'}\n"
+            f"    Even-tempered: {self.basis.is_even_tempered}\n"
+            f"  Method: {self.method.method_name}\n"
+            f"    CASSCF: {self.method.is_casscf}\n"
+            f"    FullCI: {self.method.is_fullci}\n"
+            f"  Configuration: {self.config}\n"
+            f"  Input Type: {self.input_type}\n"
+        )
+        if self.atoms_to_import:
+            summary += f"  Imported Atoms: {', '.join(self.atoms_to_import)}\n"
+        return summary
+
+
+if __name__ == "__main__":
+    # Test the InputSpecification class
+    try:
+        # Test with a standard molecule and method
+        print("\nTesting standard molecule setup:")
+        molecule = Molecule(name="water")
+        method = Method("HF")
+        basis = BasisSet("sto-3g")
+        spec = InputSpecification(
+            molecule=molecule,
+            method=method,
+            basis=basis,
+            title="Water_Test",
+            config="SP"
+        )
+        print(spec)
+
+        # Test with harmonium
+        print("\nTesting harmonium setup:")
+        harmonium = Molecule(name="harmonium", omega=0.5)
+        even_basis = BasisSet("8SPDF", omega=0.5)
+        spec_harmonium = InputSpecification(
+            molecule=harmonium,
+            method=method,
+            basis=even_basis,
+            title="Harmonium_Test"
+        )
+        print(spec_harmonium)
+
+        # Test with imported basis
+        print("\nTesting imported basis setup:")
+        helium = Molecule(name="helium")
+        imported_basis = BasisSet("aug-pc-4")
+        spec_imported = InputSpecification(
+            molecule=helium,
+            method=method,
+            basis=imported_basis,
+            title="Helium_Test"
+        )
+        print(spec_imported)
+
+        # Test error cases
+        print("\nTesting error cases:")
+        try:
+            # Test omega mismatch
+            wrong_harmonium = Molecule(name="harmonium", omega=0.5)
+            wrong_basis = BasisSet("8SPDF", omega=0.6)
+            spec_wrong = InputSpecification(
+                molecule=wrong_harmonium,
+                method=method,
+                basis=wrong_basis,
+                title="Wrong_Test"
+            )
+        except ValueError as e:
+            print(f"Caught expected error: {e}")
+
+    except Exception as e:
+        print(f"Test failed: {e}")
