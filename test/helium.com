@@ -9,4 +9,3 @@ helium helium HF sto-3g
 He    0.0000   0.0000   0.0000
 
 helium.wfx
-

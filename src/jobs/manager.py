@@ -28,11 +28,17 @@ class JobManager:
             self.commands.create_directory(scratch_dir)
 
             # Upload Gaussian input file
-            self.file_manager.upload_file(com_file_path, os.path.join(colony_dir, os.path.basename(com_file_path)))
+            self.file_manager.upload_file(
+                com_file_path, os.path.join(colony_dir, os.path.basename(com_file_path))
+            )
 
             # Generate and upload SLURM script
-            slurm_script = self.submitter.generate_gaussian_script(job_name, scratch_dir)
-            self.file_manager.upload_file(slurm_script, os.path.join(colony_dir, os.path.basename(slurm_script)))
+            slurm_script = self.submitter.generate_gaussian_script(
+                job_name, scratch_dir
+            )
+            self.file_manager.upload_file(
+                slurm_script, os.path.join(colony_dir, os.path.basename(slurm_script))
+            )
 
             # Move files to scratch
             self.commands.execute_command(f"cp {colony_dir}/* {scratch_dir}/")
@@ -53,10 +59,10 @@ class JobManager:
         try:
             job_id = self.submitter.submit_job(job_name, step)
             logging.info(f"Submitted job {job_id} for {job_name}")
-            
+
             self.monitor.monitor_job(job_id, job_name, step)
             logging.info(f"Job {job_id} completed successfully")
-            
+
             return job_id
         except Exception as e:
             logging.error(f"Error in job submission/monitoring for {job_name}: {e}")
@@ -66,8 +72,9 @@ class JobManager:
 if __name__ == "__main__":
     import sys
     import os
+
     sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-    
+
     from utils.log_config import setup_logging
     from cluster.connection import ClusterConnection
     from cluster.transfer import FileTransfer
@@ -84,16 +91,18 @@ if __name__ == "__main__":
             commands = ClusterCommands(connection)
             job_manager = JobManager(connection, file_manager)
             cleanup = ClusterCleanup(connection)
-            
+
             # Test parameters
             test_name = "job_test"
-            
+
             # Create test directories and files
             print("\nSetting up test environment...")
             os.makedirs("test", exist_ok=True)
             test_file = os.path.join("test", f"{test_name}.com")
             with open(test_file, "w") as f:
-                f.write("%chk=test.chk\n%mem=1GB\n#P HF/STO-3G\n\nTest Job\n\n0 1\nH 0 0 0\n\n")
+                f.write(
+                    "%chk=test.chk\n%mem=1GB\n#P HF/STO-3G\n\nTest Job\n\n0 1\nH 0 0 0\n\n"
+                )
 
             # Create cluster directories
             scratch_dir = os.path.join(connection.scratch_dir, test_name)

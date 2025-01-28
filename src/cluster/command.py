@@ -15,7 +15,7 @@ class ClusterCommands:
     def execute_command(self, command, wait=False):
         """
         Executes a command on the cluster.
-        
+
         Args:
             command (str): Command to execute
             wait (bool): Whether to wait for command completion
@@ -68,46 +68,53 @@ class ClusterCommands:
         return self.execute_command(command)
 
 
-
 if __name__ == "__main__":
     from cluster.cleanup import ClusterCleanup
-    
+
     # Test cluster commands
     try:
         with ClusterConnection() as connection:
             commands = ClusterCommands(connection)
             cleanup = ClusterCleanup(connection)
             test_name = "command_test"
-            
+
             print("\nTesting directory operations...")
             # Test colony directory
             colony_dir = f"{connection.colony_dir}/{test_name}"
             commands.create_directory(colony_dir)
-            print(f"Colony directory exists: {commands.check_directory_exists(colony_dir)}")
-            
+            print(
+                f"Colony directory exists: {commands.check_directory_exists(colony_dir)}"
+            )
+
             # Test scratch directory
             scratch_dir = f"{connection.scratch_dir}/{test_name}"
             commands.create_directory(scratch_dir)
-            print(f"Scratch directory exists: {commands.check_directory_exists(scratch_dir)}")
-            
+            print(
+                f"Scratch directory exists: {commands.check_directory_exists(scratch_dir)}"
+            )
+
             # Test file operations
             print("\nTesting file operations...")
             test_file = f"{colony_dir}/test.txt"
             commands.execute_command(f"echo 'test content' > {test_file}")
             print(f"File exists: {commands.check_file_exists(test_file)}")
-            
+
             # Test file content reading
             content = commands.read_file_content(test_file)
             print(f"File content: {content}")
-            
+
             # Clean up using cleanup class
             print("\nCleaning up...")
-            #cleanup.clean_calculation(test_name)
-            
+            # cleanup.clean_calculation(test_name)
+
             # Verify cleanup
             print("\nVerifying cleanup...")
-            print(f"Colony directory exists: {commands.check_directory_exists(colony_dir)}")
-            print(f"Scratch directory exists: {commands.check_directory_exists(scratch_dir)}")
-            
+            print(
+                f"Colony directory exists: {commands.check_directory_exists(colony_dir)}"
+            )
+            print(
+                f"Scratch directory exists: {commands.check_directory_exists(scratch_dir)}"
+            )
+
     except Exception as e:
         print(f"Command test failed: {e}")

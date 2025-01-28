@@ -9,9 +9,9 @@ from calculations.dm2prim import DM2PRIMCalculation
 from calculations.inca import INCACalculation
 
 __all__ = [
-    'Calculation',
-    'GaussianCalculation',
-    'DMNCalculation',
-    'DM2PRIMCalculation',
-    'INCACalculation'
+    "Calculation",
+    "GaussianCalculation",
+    "DMNCalculation",
+    "DM2PRIMCalculation",
+    "INCACalculation",
 ]

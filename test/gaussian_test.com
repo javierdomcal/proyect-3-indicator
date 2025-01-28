@@ -9,4 +9,3 @@ gaussian_test hydrogen_atom CISD sto-3g
 H    0.0000   0.0000   0.0000
 
 gaussian_test.wfx
-

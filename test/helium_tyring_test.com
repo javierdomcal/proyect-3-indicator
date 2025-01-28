@@ -9,4 +9,3 @@ helium_tyring_test helium CISD sto-3g
 He    0.0000   0.0000   0.0000
 
 helium_tyring_test.wfx
-

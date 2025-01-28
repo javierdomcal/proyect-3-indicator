@@ -180,7 +180,7 @@ if __name__ == "__main__":
         molecule = Molecule(name="water")
         method = Method("HF")
         basis = BasisSet("sto-3g")
-        
+
         # Test Gaussian input generation
         print("\nTesting Gaussian input generation:")
         gaussian_gen = InputFileGenerator(
@@ -188,7 +188,7 @@ if __name__ == "__main__":
             molecule=molecule,
             method=method,
             basis=basis,
-            title="test_gaussian"
+            title="test_gaussian",
         )
         gaussian_gen.generate_input_file()
 
@@ -200,7 +200,7 @@ if __name__ == "__main__":
             method=method,
             basis=basis,
             title="test_inca",
-            input_type="inca"
+            input_type="inca",
         )
         inca_gen.generate_input_file()
 

@@ -20,93 +20,36 @@ class GaussianCalculation(Calculation):
                 method=input_spec.method,
                 basis=input_spec.basis,
                 title=job_name,
-                input_type="gaussian"
+                input_type="gaussian",
             )
-            
+
             # Create local test directory and generate input file
             input_dir = "test"
             os.makedirs(input_dir, exist_ok=True)
             com_file = os.path.join(input_dir, f"{job_name}.com")
             generator.generate_input_file(nproc=nproc, wfx=wfx)
-            
+
             # Define cluster paths
             colony_dir = f"{self.connection.colony_dir}/{job_name}"
             colony_com = f"{colony_dir}/{job_name}.com"
-            
+
             # Upload .com file to colony
             self.file_manager.upload_file(com_file, colony_com)
-            
+
             # Generate SLURM script and upload
             slurm_script = self.job_manager.submitter.generate_gaussian_script(
-                job_name,
-                f"{self.connection.scratch_dir}/{job_name}"
+                job_name, f"{self.connection.scratch_dir}/{job_name}"
             )
             self.file_manager.upload_file(
-                slurm_script,
-                f"{colony_dir}/{job_name}.slurm"
+                slurm_script, f"{colony_dir}/{job_name}.slurm"
             )
-            
+
             logging.info(f"Input files prepared for {job_name}")
-            
+
         except Exception as e:
             logging.error(f"Error preparing Gaussian input files for {job_name}: {e}")
             raise
 
-    def modify_log_file(self, job_name):
-        """Modify the Gaussian log file for subsequent calculations."""
-        try:
-            # Define cluster paths
-            colony_dir = f"{self.connection.colony_dir}/{job_name}"
-            log_file = f"{colony_dir}/{job_name}.log"
-
-            # Verify log file exists
-            if not self.commands.check_file_exists(log_file):
-                raise FileNotFoundError(f"Log file not found: {log_file}")
-
-            # Read current content
-            content = self.commands.read_file_content(log_file)
-
-            # Prepare additional content
-            additional_text = """
-             Thresholds for DMn (READ, WRITE)
-             1d-10 1d-10
-             DMs to compute
-             2 1 2
-             DM2HF
-             DM2SD
-
-            """
-            # Create modified content directly on cluster
-            cmd = f"echo '{content}{additional_text}' > {colony_dir}/temp.log"
-            self.commands.execute_command(cmd)
-            
-            # Replace original with modified version
-            self.commands.execute_command(f"mv {colony_dir}/temp.log {log_file}")
-            
-            logging.info(f"Log file modified for {job_name}")
-
-        except Exception as e:
-            logging.error(f"Error modifying log file for {job_name}: {e}")
-            raise
-
-    def rename_output_files(self, job_name):
-        """Rename output files after calculation."""
-        try:
-            colony_dir = f"{self.connection.colony_dir}/{job_name}"
-            fchk_file = f"{colony_dir}/Test.FChk"
-            new_fchk = f"{colony_dir}/{job_name}.fchk"
-            
-            # Check if source file exists
-            if not self.commands.check_file_exists(fchk_file):
-                raise FileNotFoundError(f"Test.FChk not found in {colony_dir}")
-            
-            # Rename file
-            self.commands.execute_command(f"mv {fchk_file} {new_fchk}")
-            logging.info(f"Renamed Test.FChk to {job_name}.fchk")
-            
-        except Exception as e:
-            logging.error(f"Error renaming output files for {job_name}: {e}")
-            raise
 
     def collect_results(self, job_name):
         """Collect and process Gaussian calculation results."""
@@ -114,18 +57,18 @@ class GaussianCalculation(Calculation):
             # Define paths
             colony_dir = f"{self.connection.colony_dir}/{job_name}"
             log_file = f"{colony_dir}/{job_name}.log"
-            
+
             # Verify log file exists
             if not self.commands.check_file_exists(log_file):
                 raise FileNotFoundError(f"Log file not found: {log_file}")
-            
+
             # Read and parse log file
             content = self.commands.read_file_content(log_file)
             results = parse_gaussian_log(content, is_content=True)
-            
+
             logging.info(f"Results collected for {job_name}")
             return results
-            
+
         except Exception as e:
             logging.error(f"Error collecting results for {job_name}: {e}")
             raise
@@ -135,28 +78,25 @@ class GaussianCalculation(Calculation):
         try:
             # Prepare directories
             self.prepare_directories(job_name)
-            
+
             # Prepare input files
             self.prepare_input_files(job_name, input_spec, nproc, wfx)
-            
+
             # Move files to scratch
             self.move_to_scratch(job_name, f"{job_name}.com")
             self.move_to_scratch(job_name, f"{job_name}.slurm")
-            
+
             # Submit and monitor
             job_id = self.submit_and_monitor(job_name)
-            
+
             # Retrieve results
-            file_patterns = [f"{job_name}.log", "Test.FChk"]
-            self.retrieve_results(job_name, file_patterns)
-            
+            self.move_all_files_to_colony(job_name)
+
             # Process outputs
-            self.modify_log_file(job_name)
-            self.rename_output_files(job_name)
-            
+
             # Collect and return results
             return self.collect_results(job_name)
-            
+
         except Exception as e:
             logging.error(f"Error in Gaussian calculation for {job_name}: {e}")
             raise
@@ -165,8 +105,9 @@ class GaussianCalculation(Calculation):
 if __name__ == "__main__":
     import sys
     import os
+
     sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-    
+
     # Setup imports
     from utils.log_config import setup_logging
     from cluster.connection import ClusterConnection
@@ -187,7 +128,7 @@ if __name__ == "__main__":
         molecule = Molecule(name="helium")
         method = Method("CISD")
         basis = BasisSet("sto-3g")
-        
+
         # Create input specification
         input_spec = InputSpecification(
             molecule=molecule,
@@ -195,13 +136,11 @@ if __name__ == "__main__":
             basis=basis,
             title=job_name,
             config="SP",
-            input_type="gaussian"
+            input_type="gaussian",
         )
 
         # Establish connection and initialize components
-        with ClusterConnection(
-            config_file="utils/cluster_config.json"
-        ) as connection:
+        with ClusterConnection(config_file="utils/cluster_config.json") as connection:
             # Initialize managers
             file_manager = FileTransfer(connection)
             job_manager = JobManager(connection, file_manager)
@@ -211,16 +150,13 @@ if __name__ == "__main__":
             gaussian_calc = GaussianCalculation(
                 connection=connection,
                 file_manager=file_manager,
-                job_manager=job_manager
+                job_manager=job_manager,
             )
 
             # Run calculation
             print("\nRunning Gaussian calculation...")
             results = gaussian_calc.handle_calculation(
-                job_name=job_name,
-                input_spec=input_spec,
-                nproc=4,
-                wfx=True
+                job_name=job_name, input_spec=input_spec, nproc=4, wfx=True
             )
 
             # Print results

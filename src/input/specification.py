@@ -69,7 +69,9 @@ class InputSpecification:
 
         # Check if the selected method is supported for the given molecule and basis set
         if self.method.is_fullci and self.molecule.count_atoms() > 4:
-            raise ValueError("Full CI method is not supported for molecules with more than 4 atoms.")
+            raise ValueError(
+                "Full CI method is not supported for molecules with more than 4 atoms."
+            )
 
         # Additional compatibility checks can be added here if needed
         self.logger.info("Dependencies validated successfully.")
@@ -128,7 +130,7 @@ if __name__ == "__main__":
             method=method,
             basis=basis,
             title="Water_Test",
-            config="SP"
+            config="SP",
         )
         print(spec)
 
@@ -137,10 +139,7 @@ if __name__ == "__main__":
         harmonium = Molecule(name="harmonium", omega=0.5)
         even_basis = BasisSet("8SPDF", omega=0.5)
         spec_harmonium = InputSpecification(
-            molecule=harmonium,
-            method=method,
-            basis=even_basis,
-            title="Harmonium_Test"
+            molecule=harmonium, method=method, basis=even_basis, title="Harmonium_Test"
         )
         print(spec_harmonium)
 
@@ -149,10 +148,7 @@ if __name__ == "__main__":
         helium = Molecule(name="helium")
         imported_basis = BasisSet("aug-pc-4")
         spec_imported = InputSpecification(
-            molecule=helium,
-            method=method,
-            basis=imported_basis,
-            title="Helium_Test"
+            molecule=helium, method=method, basis=imported_basis, title="Helium_Test"
         )
         print(spec_imported)
 
@@ -166,7 +162,7 @@ if __name__ == "__main__":
                 molecule=wrong_harmonium,
                 method=method,
                 basis=wrong_basis,
-                title="Wrong_Test"
+                title="Wrong_Test",
             )
         except ValueError as e:
             print(f"Caught expected error: {e}")
