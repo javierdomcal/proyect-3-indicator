@@ -25,27 +25,29 @@ class FluxAnalyzer:
         """
         try:
             # Convert content to numpy array
-            rows = [line.split() for line in data.strip().split('\n')]
+            rows = [line.split() for line in data.strip().split("\n")]
             values = np.array(rows, dtype=float)
 
             # Calculate basic statistics
             analysis = {
-                'mean': float(np.mean(values)),
-                'std': float(np.std(values)),
-                'min': float(np.min(values)),
-                'max': float(np.max(values)),
-                'median': float(np.median(values)),
-                'shape': values.shape,
-                'non_zero': int(np.count_nonzero(values)),
-                'timestamp': datetime.now().isoformat()
+                "mean": float(np.mean(values)),
+                "std": float(np.std(values)),
+                "min": float(np.min(values)),
+                "max": float(np.max(values)),
+                "median": float(np.median(values)),
+                "shape": values.shape,
+                "non_zero": int(np.count_nonzero(values)),
+                "timestamp": datetime.now().isoformat(),
             }
 
             # Add additional correlation metrics
-            analysis.update({
-                'correlation_strength': self._evaluate_correlation_strength(values),
-                'spatial_distribution': self._analyze_spatial_distribution(values),
-                'significant_regions': self._find_significant_regions(values)
-            })
+            analysis.update(
+                {
+                    "correlation_strength": self._evaluate_correlation_strength(values),
+                    "spatial_distribution": self._analyze_spatial_distribution(values),
+                    "significant_regions": self._find_significant_regions(values),
+                }
+            )
 
             # Store analysis
             self.analyses[job_name] = analysis
@@ -64,9 +66,9 @@ class FluxAnalyzer:
             strong_correlations = np.sum(values > threshold)
 
             return {
-                'strong_count': int(strong_correlations),
-                'strong_percentage': float(strong_correlations / values.size * 100),
-                'threshold': float(threshold)
+                "strong_count": int(strong_correlations),
+                "strong_percentage": float(strong_correlations / values.size * 100),
+                "threshold": float(threshold),
             }
         except Exception as e:
             logging.error(f"Error evaluating correlation strength: {e}")
@@ -79,9 +81,13 @@ class FluxAnalyzer:
             quartiles = np.percentile(values, [25, 50, 75])
 
             return {
-                'quartiles': quartiles.tolist(),
-                'skewness': float(np.mean(((values - np.mean(values)) / np.std(values)) ** 3)),
-                'kurtosis': float(np.mean(((values - np.mean(values)) / np.std(values)) ** 4))
+                "quartiles": quartiles.tolist(),
+                "skewness": float(
+                    np.mean(((values - np.mean(values)) / np.std(values)) ** 3)
+                ),
+                "kurtosis": float(
+                    np.mean(((values - np.mean(values)) / np.std(values)) ** 4)
+                ),
             }
         except Exception as e:
             logging.error(f"Error analyzing spatial distribution: {e}")
@@ -95,9 +101,9 @@ class FluxAnalyzer:
             significant_mask = values > threshold
 
             return {
-                'count': int(np.sum(significant_mask)),
-                'threshold': float(threshold),
-                'percentage': float(np.sum(significant_mask) / values.size * 100)
+                "count": int(np.sum(significant_mask)),
+                "threshold": float(threshold),
+                "percentage": float(np.sum(significant_mask) / values.size * 100),
             }
         except Exception as e:
             logging.error(f"Error finding significant regions: {e}")
@@ -116,52 +122,54 @@ class FluxAnalyzer:
         """
         try:
             analysis = {
-                'timestamp': datetime.now().isoformat(),
-                'job_name': job_name,
-                'calculations': {}
+                "timestamp": datetime.now().isoformat(),
+                "job_name": job_name,
+                "calculations": {},
             }
 
             # Analyze Gaussian results
-            if 'GaussianCalculation' in flux_results:
-                gaussian_results = flux_results['GaussianCalculation']
-                analysis['calculations']['gaussian'] = {
-                    'hf_energy': gaussian_results.get('hf_energy'),
-                    'normal_termination': gaussian_results.get('normal_termination'),
-                    'elapsed_time': gaussian_results.get('elapsed_time'),
-                    'optimization_status': gaussian_results.get('optimization_status')
+            if "GaussianCalculation" in flux_results:
+                gaussian_results = flux_results["GaussianCalculation"]
+                analysis["calculations"]["gaussian"] = {
+                    "hf_energy": gaussian_results.get("hf_energy"),
+                    "normal_termination": gaussian_results.get("normal_termination"),
+                    "elapsed_time": gaussian_results.get("elapsed_time"),
+                    "optimization_status": gaussian_results.get("optimization_status"),
                 }
 
             # Record DMN completion
-            if 'DMNCalculation' in flux_results:
-                dmn_results = flux_results['DMNCalculation']
-                analysis['calculations']['dmn'] = {
-                    'status': dmn_results.get('status'),
-                    'output_files': dmn_results.get('output_files', [])
+            if "DMNCalculation" in flux_results:
+                dmn_results = flux_results["DMNCalculation"]
+                analysis["calculations"]["dmn"] = {
+                    "status": dmn_results.get("status"),
+                    "output_files": dmn_results.get("output_files", []),
                 }
 
             # Record DM2PRIM completion
-            if 'DM2PRIMCalculation' in flux_results:
-                dm2prim_results = flux_results['DM2PRIMCalculation']
-                analysis['calculations']['dm2prim'] = {
-                    'status': dm2prim_results.get('status'),
-                    'output_files': dm2prim_results.get('output_files', [])
+            if "DM2PRIMCalculation" in flux_results:
+                dm2prim_results = flux_results["DM2PRIMCalculation"]
+                analysis["calculations"]["dm2prim"] = {
+                    "status": dm2prim_results.get("status"),
+                    "output_files": dm2prim_results.get("output_files", []),
                 }
 
             # Analyze INCA results
-            if 'INCACalculation' in flux_results:
-                inca_results = flux_results['INCACalculation']
-                if 'content' in inca_results:
-                    ontop_analysis = self.analyze_ontop_data(job_name, inca_results['content'])
-                    analysis['calculations']['inca'] = {
-                        'status': inca_results.get('status'),
-                        'ontop_analysis': ontop_analysis
+            if "INCACalculation" in flux_results:
+                inca_results = flux_results["INCACalculation"]
+                if "content" in inca_results:
+                    ontop_analysis = self.analyze_ontop_data(
+                        job_name, inca_results["content"]
+                    )
+                    analysis["calculations"]["inca"] = {
+                        "status": inca_results.get("status"),
+                        "ontop_analysis": ontop_analysis,
                     }
 
             # Calculate overall success
-            analysis['overall_success'] = all(
-                calc.get('status') == 'completed'
-                for calc in analysis['calculations'].values()
-                if 'status' in calc
+            analysis["overall_success"] = all(
+                calc.get("status") == "completed"
+                for calc in analysis["calculations"].values()
+                if "status" in calc
             )
 
             # Store complete analysis
@@ -193,6 +201,7 @@ class FluxAnalyzer:
 if __name__ == "__main__":
     import sys
     import os
+
     sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
     from utils.log_config import setup_logging
@@ -233,7 +242,7 @@ if __name__ == "__main__":
                 basis=basis,
                 title=test_name,
                 config="SP",
-                input_type="gaussian"
+                input_type="gaussian",
             )
 
             # Run correlation flux

@@ -11,6 +11,7 @@ from pathlib import Path
 from results.storage import ResultsStorage
 from results.formats import ResultsFormatter
 
+
 class ResultsManager:
     """Manages storage and retrieval of calculation results."""
 
@@ -20,7 +21,9 @@ class ResultsManager:
         self.storage = ResultsStorage(self.base_path)
         self.formatter = ResultsFormatter()
 
-    def store_calculation_results(self, calculation_hash, details, results, colony_path, has_optimization=False):
+    def store_calculation_results(
+        self, calculation_hash, details, results, colony_path, has_optimization=False
+    ):
         """
         Store calculation results in the standard format.
 
@@ -83,12 +86,14 @@ class ResultsManager:
                 "details": details,
                 "results": results,
                 "has_optimization": has_optimization,
-                "has_ontop": has_ontop
+                "has_ontop": has_ontop,
             }
 
             # Add file contents if they exist
             if has_optimization:
-                output["optimized_geometry"] = self.storage.load_xyz(calc_dir / "optimized_geometry.xyz")
+                output["optimized_geometry"] = self.storage.load_xyz(
+                    calc_dir / "optimized_geometry.xyz"
+                )
             if has_ontop:
                 output["ontop"] = self.storage.load_ontop(calc_dir / "ontop.dat")
 

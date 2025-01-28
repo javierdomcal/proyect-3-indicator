@@ -23,7 +23,7 @@ class MetadataManager:
             # Load current metadata
             metadata = {}
             if os.path.exists(self.METADATA_FILE):
-                with open(self.METADATA_FILE, 'r') as f:
+                with open(self.METADATA_FILE, "r") as f:
                     metadata = json.load(f)
 
             # Initialize if new hash
@@ -33,11 +33,11 @@ class MetadataManager:
             # Update metadata
             metadata[hash_str][key] = {
                 "value": value,
-                "timestamp": datetime.now().isoformat()
+                "timestamp": datetime.now().isoformat(),
             }
 
             # Save updated metadata
-            with open(self.METADATA_FILE, 'w') as f:
+            with open(self.METADATA_FILE, "w") as f:
                 json.dump(metadata, f, indent=2, sort_keys=True)
 
             logging.info(f"Added metadata '{key}' for {hash_str}")
@@ -52,7 +52,7 @@ class MetadataManager:
             if not os.path.exists(self.METADATA_FILE):
                 return None
 
-            with open(self.METADATA_FILE, 'r') as f:
+            with open(self.METADATA_FILE, "r") as f:
                 metadata = json.load(f)
 
             if hash_str not in metadata:
@@ -73,7 +73,7 @@ class MetadataManager:
             if not os.path.exists(self.METADATA_FILE):
                 return
 
-            with open(self.METADATA_FILE, 'r') as f:
+            with open(self.METADATA_FILE, "r") as f:
                 metadata = json.load(f)
 
             if hash_str not in metadata:
@@ -88,10 +88,12 @@ class MetadataManager:
                     del metadata[hash_str][key]
 
             # Save updated metadata
-            with open(self.METADATA_FILE, 'w') as f:
+            with open(self.METADATA_FILE, "w") as f:
                 json.dump(metadata, f, indent=2, sort_keys=True)
 
-            logging.info(f"Removed metadata {'key ' + key if key else 'all'} for {hash_str}")
+            logging.info(
+                f"Removed metadata {'key ' + key if key else 'all'} for {hash_str}"
+            )
 
         except Exception as e:
             logging.error(f"Error removing metadata for {hash_str}: {e}")
@@ -111,14 +113,13 @@ class MetadataManager:
             if not os.path.exists(self.METADATA_FILE):
                 return {}
 
-            with open(self.METADATA_FILE, 'r') as f:
+            with open(self.METADATA_FILE, "r") as f:
                 metadata = json.load(f)
 
             matches = {}
             for hash_str, hash_metadata in metadata.items():
                 match = all(
-                    key in hash_metadata and
-                    hash_metadata[key]["value"] == value
+                    key in hash_metadata and hash_metadata[key]["value"] == value
                     for key, value in criteria.items()
                 )
                 if match:
@@ -133,6 +134,7 @@ class MetadataManager:
 
 if __name__ == "__main__":
     import sys
+
     sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
     from utils.log_config import setup_logging

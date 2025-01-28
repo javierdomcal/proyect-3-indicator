@@ -6,6 +6,7 @@ import json
 import logging
 from datetime import datetime
 
+
 class ResultsFormatter:
     """Handles formatting of calculation results."""
 
@@ -22,16 +23,13 @@ class ResultsFormatter:
         try:
             formatted = {
                 "timestamp": datetime.now().isoformat(),
-                "energy": {
-                    "total": results.get("hf_energy"),
-                    "units": "hartree"
-                },
+                "energy": {"total": results.get("hf_energy"), "units": "hartree"},
                 "calculation": {
                     "success": results.get("normal_termination", False),
                     "optimization_status": results.get("optimization_status"),
                     "cpu_time": results.get("cpu_time"),
-                    "elapsed_time": results.get("elapsed_time")
-                }
+                    "elapsed_time": results.get("elapsed_time"),
+                },
             }
 
             # Add geometry information if available
@@ -41,7 +39,7 @@ class ResultsFormatter:
                     "atomic_symbols": results["atomic_symbols"],
                     "coordinates": [
                         atom["coordinates"] for atom in results["optimized_geometry"]
-                    ]
+                    ],
                 }
 
             return formatted
@@ -64,7 +62,7 @@ class ResultsFormatter:
             "molecule": ["name", "charge", "multiplicity"],
             "method": ["name"],
             "basis": ["name"],
-            "config": None
+            "config": None,
         }
 
         try:
@@ -201,28 +199,16 @@ if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO)
     # Setup test data
     test_details_valid = {
-        "molecule": {
-            "name": "water",
-            "charge": 0,
-            "multiplicity": 1
-        },
-        "method": {
-            "name": "HF"
-        },
-        "basis": {
-            "name": "sto-3g"
-        },
-        "config": "Opt"
+        "molecule": {"name": "water", "charge": 0, "multiplicity": 1},
+        "method": {"name": "HF"},
+        "basis": {"name": "sto-3g"},
+        "config": "Opt",
     }
 
     test_details_invalid = {
-        "molecule": {
-            "name": "water"
-        },
+        "molecule": {"name": "water"},
         "method": {},
-        "basis": {
-            "name": "sto-3g"
-        }
+        "basis": {"name": "sto-3g"},
     }
 
     test_results_valid = {
@@ -232,21 +218,12 @@ if __name__ == "__main__":
         "cpu_time": "0 days 0 hours 1 minutes 3.0 seconds",
         "elapsed_time": "0 days 0 hours 0 minutes 57.6 seconds",
         "optimized_geometry": [
-            {
-                "atomic_number": 8,
-                "coordinates": [0.0, 0.0, 0.0]
-            },
-            {
-                "atomic_number": 1,
-                "coordinates": [0.0, -0.757, 0.587]
-            },
-            {
-                "atomic_number": 1,
-                "coordinates": [0.0, 0.757, 0.587]
-            }
+            {"atomic_number": 8, "coordinates": [0.0, 0.0, 0.0]},
+            {"atomic_number": 1, "coordinates": [0.0, -0.757, 0.587]},
+            {"atomic_number": 1, "coordinates": [0.0, 0.757, 0.587]},
         ],
         "atomic_numbers": [8, 1, 1],
-        "atomic_symbols": ["O", "H", "H"]
+        "atomic_symbols": ["O", "H", "H"],
     }
 
     test_results_invalid = {

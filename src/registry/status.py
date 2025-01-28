@@ -14,11 +14,11 @@ class StatusTracker:
     STATUS_FILE = os.path.join("utils", "storage", "status.json")
 
     VALID_STATUSES = [
-        "pending",      # Not yet started
-        "running",      # Currently executing
-        "completed",    # Successfully completed
-        "failed",       # Failed to complete
-        "interrupted"   # Stopped mid-execution
+        "pending",  # Not yet started
+        "running",  # Currently executing
+        "completed",  # Successfully completed
+        "failed",  # Failed to complete
+        "interrupted",  # Stopped mid-execution
     ]
 
     def __init__(self):
@@ -34,7 +34,7 @@ class StatusTracker:
             # Load current status file
             current_status = {}
             if os.path.exists(self.STATUS_FILE):
-                with open(self.STATUS_FILE, 'r') as f:
+                with open(self.STATUS_FILE, "r") as f:
                     current_status = json.load(f)
 
             # Update status
@@ -42,15 +42,18 @@ class StatusTracker:
                 "status": status,
                 "message": message,
                 "last_updated": datetime.now().isoformat(),
-                "history": current_status.get(hash_str, {}).get("history", []) + [{
-                    "status": status,
-                    "message": message,
-                    "timestamp": datetime.now().isoformat()
-                }]
+                "history": current_status.get(hash_str, {}).get("history", [])
+                + [
+                    {
+                        "status": status,
+                        "message": message,
+                        "timestamp": datetime.now().isoformat(),
+                    }
+                ],
             }
 
             # Save updated status
-            with open(self.STATUS_FILE, 'w') as f:
+            with open(self.STATUS_FILE, "w") as f:
                 json.dump(current_status, f, indent=2, sort_keys=True)
 
             logging.info(f"Updated status for {hash_str} to {status}")
@@ -65,7 +68,7 @@ class StatusTracker:
             if not os.path.exists(self.STATUS_FILE):
                 return None
 
-            with open(self.STATUS_FILE, 'r') as f:
+            with open(self.STATUS_FILE, "r") as f:
                 status_data = json.load(f)
 
             return status_data.get(hash_str)
@@ -88,7 +91,7 @@ class StatusTracker:
             if not os.path.exists(self.STATUS_FILE):
                 return {}
 
-            with open(self.STATUS_FILE, 'r') as f:
+            with open(self.STATUS_FILE, "r") as f:
                 status_data = json.load(f)
 
             return {
@@ -104,6 +107,7 @@ class StatusTracker:
 
 if __name__ == "__main__":
     import sys
+
     sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
     from utils.log_config import setup_logging
@@ -126,7 +130,9 @@ if __name__ == "__main__":
         tracker.update_status(test_hash, "running", "Executing calculation")
         print("Status after running:", tracker.get_status(test_hash))
 
-        tracker.update_status(test_hash, "completed", "Calculation finished successfully")
+        tracker.update_status(
+            test_hash, "completed", "Calculation finished successfully"
+        )
         print("Status after completed:", tracker.get_status(test_hash))
 
         # Get status history

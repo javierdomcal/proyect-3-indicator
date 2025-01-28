@@ -14,7 +14,9 @@ class FluxManager:
         self.job_manager = job_manager
         self.completed_fluxes = {}
 
-    def log_flux_completion(self, job_name, flux_type, start_time, end_time, status="completed", error=None):
+    def log_flux_completion(
+        self, job_name, flux_type, start_time, end_time, status="completed", error=None
+    ):
         """Log completion of a flux calculation."""
         try:
             runtime = end_time - start_time
@@ -24,7 +26,7 @@ class FluxManager:
                 "end_time": end_time,
                 "runtime": runtime,
                 "status": status,
-                "error": error
+                "error": error,
             }
             logging.info(f"Flux {job_name} completed with status: {status}")
 
@@ -62,13 +64,17 @@ class FluxManager:
                 calc_name = calc.__class__.__name__
                 logging.info(f"Running {calc_name} for {job_name}")
 
-                if hasattr(calc, 'handle_calculation'):
-                    if 'input_spec' in calc.handle_calculation.__code__.co_varnames:
-                        results[calc_name] = calc.handle_calculation(job_name, input_spec)
+                if hasattr(calc, "handle_calculation"):
+                    if "input_spec" in calc.handle_calculation.__code__.co_varnames:
+                        results[calc_name] = calc.handle_calculation(
+                            job_name, input_spec
+                        )
                     else:
                         results[calc_name] = calc.handle_calculation(job_name)
                 else:
-                    raise ValueError(f"Calculation {calc_name} missing handle_calculation method")
+                    raise ValueError(
+                        f"Calculation {calc_name} missing handle_calculation method"
+                    )
 
             end_time = datetime.now()
             self.log_flux_completion(job_name, flux_type, start_time, end_time)
@@ -78,14 +84,16 @@ class FluxManager:
         except Exception as e:
             logging.error(f"Error in flux {job_name}: {e}")
             end_time = datetime.now()
-            self.log_flux_completion(job_name, flux_type, start_time, end_time,
-                                   status="failed", error=str(e))
+            self.log_flux_completion(
+                job_name, flux_type, start_time, end_time, status="failed", error=str(e)
+            )
             raise
 
 
 if __name__ == "__main__":
     import sys
     import os
+
     sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
     from utils.log_config import setup_logging
@@ -128,7 +136,7 @@ if __name__ == "__main__":
                 basis=basis,
                 title=test_name,
                 config="SP",
-                input_type="gaussian"
+                input_type="gaussian",
             )
 
             # Create calculation instances
@@ -136,12 +144,14 @@ if __name__ == "__main__":
                 GaussianCalculation(connection, file_manager, job_manager),
                 DMNCalculation(connection, file_manager, job_manager),
                 DM2PRIMCalculation(connection, file_manager, job_manager),
-                INCACalculation(connection, file_manager, job_manager)
+                INCACalculation(connection, file_manager, job_manager),
             ]
 
             # Run flux
             print("\nTesting flux execution...")
-            results = flux_manager.handle_flux(test_name, input_spec, "correlation", calculations)
+            results = flux_manager.handle_flux(
+                test_name, input_spec, "correlation", calculations
+            )
 
             # Print results
             print("\nFlux Results:")

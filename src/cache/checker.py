@@ -9,6 +9,7 @@ from results import ResultsManager
 from registry.status import StatusTracker
 from registry.metadata import MetadataManager
 
+
 class CacheChecker:
     """Checks for existing calculations in the cache."""
 
@@ -46,11 +47,19 @@ class CacheChecker:
 
             # If status exists but no results, calculation failed or is incomplete
             if not results_exist and current_status:
-                return False, current_status, f"Calculation {current_status} but no results found"
+                return (
+                    False,
+                    current_status,
+                    f"Calculation {current_status} but no results found",
+                )
 
             # Both exist - check status is completed
             if current_status != "completed":
-                return False, current_status, f"Calculation exists but status is {current_status}"
+                return (
+                    False,
+                    current_status,
+                    f"Calculation exists but status is {current_status}",
+                )
 
             # All checks passed
             return True, "completed", "Calculation exists and is valid"

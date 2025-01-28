@@ -8,9 +8,4 @@ from registry.status import StatusTracker
 from registry.metadata import MetadataManager
 from registry.tracker import RegistryTracker
 
-__all__ = [
-    'FluxHasher',
-    'StatusTracker',
-    'MetadataManager',
-    'RegistryTracker'
-]
+__all__ = ["FluxHasher", "StatusTracker", "MetadataManager", "RegistryTracker"]

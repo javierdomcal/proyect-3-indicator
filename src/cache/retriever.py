@@ -9,6 +9,7 @@ from results import ResultsManager
 from registry.metadata import MetadataManager
 from cache.checker import CacheChecker
 
+
 class CacheRetriever:
     """Retrieves cached calculation results."""
 
@@ -32,11 +33,15 @@ class CacheRetriever:
         try:
             # First check calculation exists and is valid
             if validate:
-                exists, status, message = self.checker.check_calculation(calculation_hash)
+                exists, status, message = self.checker.check_calculation(
+                    calculation_hash
+                )
                 if not exists:
                     return None, message
 
-                is_valid, validation_message = self.checker.validate_calculation(calculation_hash)
+                is_valid, validation_message = self.checker.validate_calculation(
+                    calculation_hash
+                )
                 if not is_valid:
                     return None, validation_message
 
@@ -65,7 +70,12 @@ class CacheRetriever:
         try:
             # Default file list if none provided
             if file_list is None:
-                file_list = ["details.json", "results.json", "optimized_geometry.xyz", "ontop.dat"]
+                file_list = [
+                    "details.json",
+                    "results.json",
+                    "optimized_geometry.xyz",
+                    "ontop.dat",
+                ]
 
             # Get calculation directory
             calc_dir = Path(self.results.base_path) / calculation_hash
@@ -77,7 +87,7 @@ class CacheRetriever:
             for filename in file_list:
                 filepath = calc_dir / filename
                 if filepath.exists():
-                    with open(filepath, 'r') as f:
+                    with open(filepath, "r") as f:
                         files[filename] = f.read()
 
             return files
@@ -126,7 +136,9 @@ class CacheRetriever:
             return chain
 
         except Exception as e:
-            logging.error(f"Error retrieving calculation chain for {calculation_hash}: {e}")
+            logging.error(
+                f"Error retrieving calculation chain for {calculation_hash}: {e}"
+            )
             return {}
 
     def get_calculations_by_criteria(self, criteria):

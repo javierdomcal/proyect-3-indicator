@@ -50,7 +50,6 @@ class GaussianCalculation(Calculation):
             logging.error(f"Error preparing Gaussian input files for {job_name}: {e}")
             raise
 
-
     def collect_results(self, job_name):
         """Collect and process Gaussian calculation results."""
         try:

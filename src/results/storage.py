@@ -8,6 +8,7 @@ import shutil
 import logging
 from pathlib import Path
 
+
 class ResultsStorage:
     """Handles physical storage operations for calculation results."""
 
@@ -43,7 +44,7 @@ class ResultsStorage:
             data: Data to store
         """
         try:
-            with open(filepath, 'w') as f:
+            with open(filepath, "w") as f:
                 json.dump(data, f, indent=2)
         except Exception as e:
             logging.error(f"Error storing JSON at {filepath}: {e}")
@@ -60,7 +61,7 @@ class ResultsStorage:
             Loaded data
         """
         try:
-            with open(filepath, 'r') as f:
+            with open(filepath, "r") as f:
                 return json.load(f)
         except Exception as e:
             logging.error(f"Error loading JSON from {filepath}: {e}")
@@ -109,7 +110,7 @@ class ResultsStorage:
             str: File content
         """
         try:
-            with open(filepath, 'r') as f:
+            with open(filepath, "r") as f:
                 return f.read()
         except Exception as e:
             logging.error(f"Error loading XYZ file {filepath}: {e}")
@@ -126,7 +127,7 @@ class ResultsStorage:
             str: File content
         """
         try:
-            with open(filepath, 'r') as f:
+            with open(filepath, "r") as f:
                 return f.read()
         except Exception as e:
             logging.error(f"Error loading ontop file {filepath}: {e}")

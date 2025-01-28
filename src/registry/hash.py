@@ -32,21 +32,21 @@ class FluxHasher:
                     "name": input_spec.molecule.name,
                     "charge": input_spec.molecule.charge,
                     "multiplicity": input_spec.molecule.multiplicity,
-                    "omega": input_spec.molecule.omega
+                    "omega": input_spec.molecule.omega,
                 },
                 "method": {
                     "name": input_spec.method.method_name,
                     "is_casscf": input_spec.method.is_casscf,
                     "n": input_spec.method.n,
-                    "m": input_spec.method.m
+                    "m": input_spec.method.m,
                 },
                 "basis": {
                     "name": input_spec.basis.basis_name,
                     "omega": input_spec.basis.omega,
-                    "is_even_tempered": input_spec.basis.is_even_tempered
+                    "is_even_tempered": input_spec.basis.is_even_tempered,
                 },
                 "config": input_spec.config,
-                "flux_type": flux_type
+                "flux_type": flux_type,
             }
 
             param_str = json.dumps(params, sort_keys=True)
@@ -70,7 +70,7 @@ class FluxHasher:
             # Load existing registry
             registry = {}
             if os.path.exists(FluxHasher.REGISTRY_FILE):
-                with open(FluxHasher.REGISTRY_FILE, 'r') as f:
+                with open(FluxHasher.REGISTRY_FILE, "r") as f:
                     registry = json.load(f)
 
             # Create readable description
@@ -83,12 +83,14 @@ class FluxHasher:
                     "charge": input_spec.molecule.charge,
                     "multiplicity": input_spec.molecule.multiplicity,
                     "configuration": input_spec.config,
-                    "is_even_tempered": input_spec.basis.is_even_tempered
-                }
+                    "is_even_tempered": input_spec.basis.is_even_tempered,
+                },
             }
 
             if input_spec.method.is_casscf:
-                description["method"] = f"CASSCF({input_spec.method.n},{input_spec.method.m})"
+                description[
+                    "method"
+                ] = f"CASSCF({input_spec.method.n},{input_spec.method.m})"
 
             if input_spec.basis.omega is not None:
                 description["details"]["basis_omega"] = input_spec.basis.omega
@@ -100,7 +102,7 @@ class FluxHasher:
             registry[hash_str] = description
 
             # Save updated registry
-            with open(FluxHasher.REGISTRY_FILE, 'w') as f:
+            with open(FluxHasher.REGISTRY_FILE, "w") as f:
                 json.dump(registry, f, indent=2, sort_keys=True)
 
             logging.info(f"Stored info for hash {hash_str} in registry")
@@ -116,7 +118,7 @@ class FluxHasher:
             if not os.path.exists(FluxHasher.REGISTRY_FILE):
                 raise FileNotFoundError("Registry file not found")
 
-            with open(FluxHasher.REGISTRY_FILE, 'r') as f:
+            with open(FluxHasher.REGISTRY_FILE, "r") as f:
                 registry = json.load(f)
 
             if hash_str not in registry:

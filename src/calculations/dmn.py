@@ -9,7 +9,6 @@ from calculations.base import Calculation
 
 
 class DMNCalculation(Calculation):
-
     def modify_log_file(self, job_name):
         """Modify the Gaussian log file for subsequent calculations."""
         try:
@@ -51,7 +50,6 @@ class DMNCalculation(Calculation):
         """Prepare input files for DMN calculation."""
         try:
             # DMN needs the Gaussian log file
-
 
             self.modify_log_file(job_name)
             log_file = f"{job_name}.log"

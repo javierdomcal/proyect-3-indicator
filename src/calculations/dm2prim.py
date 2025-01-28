@@ -8,8 +8,6 @@ from calculations.base import Calculation
 
 
 class DM2PRIMCalculation(Calculation):
-
-
     def rename_output_files(self, job_name):
         """Rename output files after calculation."""
         try:
@@ -34,7 +32,6 @@ class DM2PRIMCalculation(Calculation):
         try:
             # Check required input files from previous calculations
             self.rename_output_files(job_name)
-
 
             colony_dir = os.path.join(self.connection.colony_dir, job_name)
             required_files = [f"{job_name}.dm2", f"{job_name}.fchk"]

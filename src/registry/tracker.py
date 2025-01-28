@@ -15,11 +15,11 @@ class RegistryTracker:
     METADATA_FILE = os.path.join("utils", "storage", "metadata.json")
 
     VALID_STATUSES = [
-        "pending",      # Not yet started
-        "running",      # Currently executing
-        "completed",    # Successfully completed
-        "failed",       # Failed to complete
-        "interrupted"   # Stopped mid-execution
+        "pending",  # Not yet started
+        "running",  # Currently executing
+        "completed",  # Successfully completed
+        "failed",  # Failed to complete
+        "interrupted",  # Stopped mid-execution
     ]
 
     def __init__(self):
@@ -36,7 +36,7 @@ class RegistryTracker:
             # Load current status file
             current_status = {}
             if os.path.exists(self.STATUS_FILE):
-                with open(self.STATUS_FILE, 'r') as f:
+                with open(self.STATUS_FILE, "r") as f:
                     current_status = json.load(f)
 
             # Update status
@@ -44,15 +44,18 @@ class RegistryTracker:
                 "status": status,
                 "message": message,
                 "last_updated": datetime.now().isoformat(),
-                "history": current_status.get(hash_str, {}).get("history", []) + [{
-                    "status": status,
-                    "message": message,
-                    "timestamp": datetime.now().isoformat()
-                }]
+                "history": current_status.get(hash_str, {}).get("history", [])
+                + [
+                    {
+                        "status": status,
+                        "message": message,
+                        "timestamp": datetime.now().isoformat(),
+                    }
+                ],
             }
 
             # Save updated status
-            with open(self.STATUS_FILE, 'w') as f:
+            with open(self.STATUS_FILE, "w") as f:
                 json.dump(current_status, f, indent=2, sort_keys=True)
 
             logging.info(f"Updated status for {hash_str} to {status}")
@@ -67,7 +70,7 @@ class RegistryTracker:
             if not os.path.exists(self.STATUS_FILE):
                 return None
 
-            with open(self.STATUS_FILE, 'r') as f:
+            with open(self.STATUS_FILE, "r") as f:
                 status_data = json.load(f)
 
             return status_data.get(hash_str)
@@ -82,7 +85,7 @@ class RegistryTracker:
             # Load current metadata
             metadata = {}
             if os.path.exists(self.METADATA_FILE):
-                with open(self.METADATA_FILE, 'r') as f:
+                with open(self.METADATA_FILE, "r") as f:
                     metadata = json.load(f)
 
             # Initialize if new hash
@@ -92,11 +95,11 @@ class RegistryTracker:
             # Update metadata
             metadata[hash_str][key] = {
                 "value": value,
-                "timestamp": datetime.now().isoformat()
+                "timestamp": datetime.now().isoformat(),
             }
 
             # Save updated metadata
-            with open(self.METADATA_FILE, 'w') as f:
+            with open(self.METADATA_FILE, "w") as f:
                 json.dump(metadata, f, indent=2, sort_keys=True)
 
             logging.info(f"Added metadata '{key}' for {hash_str}")
@@ -111,7 +114,7 @@ class RegistryTracker:
             if not os.path.exists(self.METADATA_FILE):
                 return None
 
-            with open(self.METADATA_FILE, 'r') as f:
+            with open(self.METADATA_FILE, "r") as f:
                 metadata = json.load(f)
 
             if hash_str not in metadata:
@@ -129,6 +132,7 @@ class RegistryTracker:
 
 if __name__ == "__main__":
     import sys
+
     sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
     from utils.log_config import setup_logging
@@ -148,11 +152,7 @@ if __name__ == "__main__":
         basis = BasisSet("sto-3g")
 
         input_spec = InputSpecification(
-            molecule=molecule,
-            method=method,
-            basis=basis,
-            title="test",
-            config="SP"
+            molecule=molecule, method=method, basis=basis, title="test", config="SP"
         )
 
         # Generate hash
@@ -169,7 +169,9 @@ if __name__ == "__main__":
         tracker.update_status(hash_str, "running", "Executing calculation")
         print("Status after running:", tracker.get_status(hash_str))
 
-        tracker.update_status(hash_str, "completed", "Calculation finished successfully")
+        tracker.update_status(
+            hash_str, "completed", "Calculation finished successfully"
+        )
         print("Status after completed:", tracker.get_status(hash_str))
 
         print("\nTesting metadata...")

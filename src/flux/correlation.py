@@ -30,14 +30,11 @@ class CorrelationFlux(FluxManager):
         4. INCA calculation
         """
         try:
-            calculations = [
-                self.gaussian,
-                self.dmn,
-                self.dm2prim,
-                self.inca
-            ]
+            calculations = [self.gaussian, self.dmn, self.dm2prim, self.inca]
 
-            results = self.handle_flux(job_name, input_spec, "correlation", calculations)
+            results = self.handle_flux(
+                job_name, input_spec, "correlation", calculations
+            )
             logging.info(f"Correlation flux completed for {job_name}")
 
             return results
@@ -50,6 +47,7 @@ class CorrelationFlux(FluxManager):
 if __name__ == "__main__":
     import sys
     import os
+
     sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
     from utils.log_config import setup_logging
@@ -88,7 +86,7 @@ if __name__ == "__main__":
                 basis=basis,
                 title=test_name,
                 config="SP",
-                input_type="gaussian"
+                input_type="gaussian",
             )
 
             # Run correlation flux

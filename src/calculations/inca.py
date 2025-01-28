@@ -22,7 +22,7 @@ class INCACalculation(Calculation):
                 method=input_spec.method,
                 basis=input_spec.basis,
                 title=job_name,
-                input_type="inca"
+                input_type="inca",
             )
 
             # Generate and upload input file
@@ -32,27 +32,19 @@ class INCACalculation(Calculation):
             generator.generate_input_file()
 
             # Upload to colony
-            self.file_manager.upload_file(
-                inp_file,
-                f"{colony_dir}/{job_name}.inp"
-            )
+            self.file_manager.upload_file(inp_file, f"{colony_dir}/{job_name}.inp")
 
             # Generate and upload SLURM script
             scratch_dir = f"{self.connection.scratch_dir}/{job_name}"
             slurm_script = self.job_manager.submitter.generate_inca_script(
-                job_name,
-                scratch_dir
+                job_name, scratch_dir
             )
             self.file_manager.upload_file(
-                slurm_script,
-                f"{colony_dir}/{job_name}_inca.slurm"
+                slurm_script, f"{colony_dir}/{job_name}_inca.slurm"
             )
 
             # Check required input files from previous calculations
-            required_files = [
-                f"{job_name}.wfx",
-                f"{job_name}.dm2p"
-            ]
+            required_files = [f"{job_name}.wfx", f"{job_name}.dm2p"]
 
             for file in required_files:
                 if not self.commands.check_file_exists(f"{colony_dir}/{file}"):
@@ -86,7 +78,7 @@ class INCACalculation(Calculation):
             return {
                 "status": "completed",
                 "output_file": result_file,
-                "content": content
+                "content": content,
             }
 
         except Exception as e:
@@ -107,7 +99,7 @@ class INCACalculation(Calculation):
                 f"{job_name}_inca.slurm",
                 f"{job_name}.inp",
                 f"{job_name}.wfx",
-                f"{job_name}.dm2p"
+                f"{job_name}.dm2p",
             ]
 
             for file in files_to_move:
@@ -130,6 +122,7 @@ class INCACalculation(Calculation):
 if __name__ == "__main__":
     import sys
     import os
+
     sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
     from utils.log_config import setup_logging
@@ -171,7 +164,7 @@ if __name__ == "__main__":
                 basis=basis,
                 title=test_name,
                 config="SP",
-                input_type="gaussian"
+                input_type="gaussian",
             )
 
             # Run chain of calculations
