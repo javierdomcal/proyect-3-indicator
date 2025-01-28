@@ -1,0 +1,11 @@
+test_input
+$wfxfile
+heliumCISD6-311G.wfx
+$logfile
+no
+$cubefile
+.false.
+$Coulomb Hole !select an option
+ontop          !C1, all, c1approx,intra
+$On top
+heliumCISD6-311G.dm2p

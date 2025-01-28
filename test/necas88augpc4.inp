@@ -1,0 +1,11 @@
+test_input
+$wfxfile
+necas88augpc4.wfx
+$logfile
+no
+$cubefile
+.false.
+$Coulomb Hole !select an option
+ontop          !C1, all, c1approx,intra
+$On top
+necas88augpc4.dm2p

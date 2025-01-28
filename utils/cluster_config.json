@@ -1,0 +1,16 @@
+{
+  "atlas": {
+    "hostname": "atlas-edr.sw.ehu.es",
+    "username": "javidom",
+    "key_path": "/home/javi/.ssh/id_rsa",
+    "colony_dir": "/dipc/javidom/proyect-3-indicator",
+    "scratch_dir": "/scratch/javidom/proyect-3-indicator"
+  },
+  "llum": {
+    "hostname": "158.227.172.11",
+    "username": "javier",
+    "key_path": "/home/javi/.ssh/id_rsa",
+    "colony_dir": "/home/javier/proyect-3-indicator",
+    "scratch_dir": "/home/javier/proyect-3-indicator"
+  }
+}

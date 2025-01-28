@@ -1,0 +1,11 @@
+test_input
+$wfxfile
+neoncasscfaug-pc-4.wfx
+$logfile
+no
+$cubefile
+.false.
+$Coulomb Hole !select an option
+ontop          !C1, all, c1approx,intra
+$On top
+neoncasscfaug-pc-4.dm2p

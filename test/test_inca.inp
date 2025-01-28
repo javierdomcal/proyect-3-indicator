@@ -1,0 +1,11 @@
+test_input
+$wfxfile
+test_inca.wfx
+$logfile
+no
+$cubefile
+.false.
+$Coulomb Hole !select an option
+ontop          !C1, all, c1approx,intra
+$On top
+test_inca.dm2p
