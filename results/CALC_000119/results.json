@@ -1,0 +1,33 @@
+{
+  "calculation_info": {
+    "id": "CALC_000119",
+    "molecule_id": 10,
+    "method_id": 6,
+    "basis_id": 7,
+    "scanning_props_id": 4,
+    "status": "registered",
+    "config": "SP",
+    "created_at": "2025-02-20 18:57:21",
+    "last_updated": null,
+    "message": null,
+    "results_path": null,
+    "molecule_name": "lithium",
+    "method_name": "CASSCF(6,6)",
+    "basis_name": "aug-cc-pVQZ",
+    "omega": null,
+    "charge": 0,
+    "multiplicity": 1,
+    "n_electrons": 6,
+    "m_orbitals": 6,
+    "excited_state": null,
+    "atom_indices": "1",
+    "directions": "x,z",
+    "end_distance": 1.5,
+    "step_size": 0.05
+  },
+  "results": {
+    "energy": {},
+    "calculation_time": "0 days  0 hours  3 minutes  9.4 seconds.",
+    "status": "completed"
+  }
+}

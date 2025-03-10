@@ -1,0 +1,11 @@
+test_input
+$wfxfile
+helium_test_mario.wfx
+$logfile
+no
+$cubefile
+.false.
+$Coulomb Hole !select an option
+ontop          !C1, all, c1approx,intra
+$On top
+helium_test_mario.dm2p

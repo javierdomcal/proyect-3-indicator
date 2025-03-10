@@ -1,0 +1,11 @@
+{
+  "calculation_info": null,
+  "results": {
+    "energy": {
+      "scf": -1.00219274549,
+      "hf": -1.0021927
+    },
+    "calculation_time": "0 days  0 hours  0 minutes  1.0 seconds.",
+    "status": "completed"
+  }
+}

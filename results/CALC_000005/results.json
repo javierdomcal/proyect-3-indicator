@@ -1,0 +1,37 @@
+{
+  "calculation_info": {
+    "id": "CALC_000005",
+    "molecule_id": 1,
+    "method_id": 1,
+    "basis_id": 1,
+    "scanning_props_id": 1,
+    "status": "registered",
+    "config": "SP",
+    "created_at": "2025-02-19 20:17:55",
+    "last_updated": null,
+    "message": null,
+    "results_path": null,
+    "molecule_name": "harmonium",
+    "method_name": "CISD",
+    "basis_name": "cc-pVQZ",
+    "omega": 0.1,
+    "charge": -2,
+    "multiplicity": 1,
+    "n_electrons": null,
+    "m_orbitals": null,
+    "excited_state": null,
+    "atom_indices": "1",
+    "directions": "x",
+    "end_distance": 2.0,
+    "step_size": 0.05
+  },
+  "results": {
+    "energy": {
+      "scf": 0.50939094068,
+      "mp2": 0.50293968255345,
+      "hf": 0.5093909
+    },
+    "calculation_time": "0 days  0 hours  0 minutes  1.9 seconds.",
+    "status": "completed"
+  }
+}

@@ -1,0 +1,37 @@
+{
+  "calculation_info": {
+    "id": "CALC_000061",
+    "molecule_id": 6,
+    "method_id": 1,
+    "basis_id": 1,
+    "scanning_props_id": 2,
+    "status": "registered",
+    "config": "SP",
+    "created_at": "2025-02-20 18:23:43",
+    "last_updated": null,
+    "message": null,
+    "results_path": null,
+    "molecule_name": "neon",
+    "method_name": "CISD",
+    "basis_name": "cc-pVQZ",
+    "omega": null,
+    "charge": 0,
+    "multiplicity": 1,
+    "n_electrons": null,
+    "m_orbitals": null,
+    "excited_state": null,
+    "atom_indices": "1",
+    "directions": "z",
+    "end_distance": 1.5,
+    "step_size": 0.05
+  },
+  "results": {
+    "energy": {
+      "scf": -128.543469519,
+      "mp2": -0.12883704206679,
+      "hf": -128.5434695
+    },
+    "calculation_time": "0 days  0 hours  0 minutes  8.0 seconds.",
+    "status": "completed"
+  }
+}
