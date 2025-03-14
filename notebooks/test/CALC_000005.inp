@@ -12,9 +12,9 @@ CALC_000005.dm2p
 $scanning_props
 1
 1
-1
-x
 2
+x,z
+5
 0.05
 $ID
 .true.

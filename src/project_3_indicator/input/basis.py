@@ -44,29 +44,45 @@ class BasisSet:
             return True
         return False
 
-    def load_even_tempered_coefficients(self):
-        """
-        Loads coefficients for an even-tempered basis from the CSV file using omega, n, and angular momentum.
-        """
-        csv_path = os.path.join(UTILS_DIR, "even-tempered-coefficients.csv")
-        try:
-            df = pd.read_csv(csv_path)
-            # Filter row based on n, omega, and angular_momentum
-            row = df[
-                (df["n"] == self.n)
-                & (abs(df["omega"].astype(float) - self.omega) < 0.00001)
-            ]
+def load_even_tempered_coefficients(self):
+    """
+    Load coefficients for even-tempered basis.
+
+    Supports both harmonium and helium-like atom cases.
+    """
+    try:
+        # Determine which CSV to use
+        if self.is_even_tempered:
+            if self.omega is not None:
+                # Harmonium case (existing implementation)
+                csv_path = os.path.join(UTILS_DIR, "even-tempered-coefficients.csv")
+                row = pd.read_csv(csv_path)[(df["n"] == self.n) &
+                                            (abs(df["omega"].astype(float) - self.omega) < 0.00001)]
+            else:
+                # Helium-like atom case
+                csv_path = os.path.join(UTILS_DIR, "even-tempered-coefficients-helium.csv")
+
+                # Get atomic number for the atom
+                from ..utils.parsers import get_atomic_number  # Assuming this exists
+
+                # If atom is not specified, use the molecule's unique atoms
+                atomic_number = get_atomic_number(self.molecule.unique_atoms()[0])
+
+                row = pd.read_csv(csv_path)[(df["n"] == self.n) &
+                                            (df["Z"] == atomic_number)]
+
             if row.empty:
-                raise ValueError("Coefficients not found for the specified parameters.")
+                raise ValueError(f"Coefficients not found for specified parameters in {csv_path}")
+
             self.alpha = row.iloc[0]["alpha"]
             self.beta = row.iloc[0]["beta"]
-            print(
-                f"Even-tempered coefficients loaded: alpha={self.alpha}, beta={self.beta}"
-            )
-        except FileNotFoundError:
-            print(f"CSV file {csv_path} not found.")
-        except Exception as e:
-            print("Error loading even-tempered coefficients:", e)
+
+            print(f"Even-tempered coefficients loaded: alpha={self.alpha}, beta={self.beta}")
+
+    except FileNotFoundError:
+        print(f"CSV file {csv_path} not found.")
+    except Exception as e:
+        print("Error loading even-tempered coefficients:", e)
 
     def __str__(self):
         """

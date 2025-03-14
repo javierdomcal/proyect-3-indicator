@@ -8,6 +8,7 @@ import logging
 import re
 import pandas as pd
 from pathlib import Path
+import numpy as np
 
 from ..input.specification import InputSpecification
 from ..input.molecules import Molecule
@@ -57,7 +58,7 @@ class CalculationHandler:
                     'basis': basis_name,
                     'method': method_name
                 }
-                
+
             input_spec = InputSpecification(
                 molecule=molecule,
                 method=method,
@@ -127,7 +128,7 @@ class CalculationHandler:
 
             # Check and download files from cluster
             colony_path = f"{self.connection.colony_dir}/{calc_id}"
-            files_to_check = [f"{calc_id}.log", "ontop.dat"]
+            files_to_check = [f"{calc_id}.log", "ontop.dat", "ontop.cube", "density.cube", "ID.cube"]
 
             for file in files_to_check:
                 remote_file = f"{colony_path}/{file}"
@@ -175,6 +176,56 @@ class CalculationHandler:
         except Exception as e:
             logging.error(f"Error storing results for {calc_id}: {str(e)}")
             raise
+
+    def read_cube_file(cube_path):
+        """Read a cube file and return the grid data and values."""
+        with open(cube_path, 'r') as f:
+            # Skip the first two comment lines
+            next(f)
+            next(f)
+
+            # Read grid specs
+            parts = next(f).split()
+            natoms = int(parts[0])
+            origin = np.array([float(parts[1]), float(parts[2]), float(parts[3])])
+
+            # Read grid dimensions and step sizes
+            nx_line = next(f).split()
+            ny_line = next(f).split()
+            nz_line = next(f).split()
+
+            nx = int(nx_line[0])
+            ny = int(ny_line[0])
+            nz = int(nz_line[0])
+
+            dx = float(nx_line[1])
+            dy = float(ny_line[2])
+            dz = float(nz_line[3])
+
+            # Skip atom coordinates
+            for _ in range(natoms):
+                next(f)
+
+            # Read the volumetric data
+            values = []
+            for line in f:
+                values.extend([float(val) for val in line.split()])
+
+            values = np.array(values)
+
+            # Create the grid
+            x = np.linspace(origin[0], origin[0] + (nx-1)*dx, nx)
+            y = np.linspace(origin[1], origin[1] + (ny-1)*dy, ny)
+            z = np.linspace(origin[2], origin[2] + (nz-1)*dz, nz)
+
+            # Create meshgrid
+            X, Y, Z = np.meshgrid(x, y, z, indexing='ij')
+
+            # Reshape values to match grid shape
+            values = values.reshape((nx, ny, nz))
+
+            return X, Y, Z, values, (nx, ny, nz)
+
     def get_processed_results(self, calc_id):
         """Get processed calculation results in standardized format."""
         try:
@@ -196,6 +247,40 @@ class CalculationHandler:
                     skipinitialspace=True
                 )
 
+            # Paths to cube files
+            ontop_path = results_path / "ontop.cube"
+            density_path = results_path / "density.cube"
+            id_path = results_path / "ID.cube"
+
+            cube_df = None
+            if ontop_path.exists() and density_path.exists() and id_path.exists():
+                # Read the cube files
+                X, Y, Z, ontop_values, dims = read_cube_file(ontop_path)
+                _, _, _, density_values, _ = read_cube_file(density_path)
+                _, _, _, id_values, _ = read_cube_file(id_path)
+
+                # Flatten the arrays for DataFrame creation
+                x_flat = X.flatten()
+                y_flat = Y.flatten()
+                z_flat = Z.flatten()
+                ontop_flat = ontop_values.flatten()
+                density_flat = density_values.flatten()
+                id_flat = id_values.flatten()
+
+                # Create DataFrame
+                cube_df = pd.DataFrame({
+                    'x': x_flat,
+                    'y': y_flat,
+                    'z': z_flat,
+                    'ontop': ontop_flat,
+                    'density': density_flat,
+                    'indicator': id_flat
+                })
+
+                print(f"Created DataFrame with {len(cube_df)} grid points")
+            else:
+                print("One or more cube files not found")
+
 
             processed_results = {
                 "calculation_id": calc_id,
@@ -206,6 +291,7 @@ class CalculationHandler:
                 "calculation_time": results.get("calculation", {}).get("elapsed_time"),
                 "geometry": geometry,
                 "ontop_data": ontop_df,
+                "ontop_cube": cube_df,
                 "status": calc_info["status"]
             }
 

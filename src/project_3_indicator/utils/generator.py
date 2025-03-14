@@ -170,6 +170,9 @@ class InputFileGenerator:
             f.write("$ID\n")
             f.write(".true.\n")
 
+            f.write("$Ontop_Output_format\n")
+            f.write(".true.\n")
+
         print(f"INCA input file '{filename}' generated successfully.")
 
 

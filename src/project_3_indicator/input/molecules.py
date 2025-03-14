@@ -149,6 +149,48 @@ class Molecule:
         atom_counts = Counter(atoms)
         return dict(atom_counts)
 
+    def count_atoms(self):
+        """
+        Count total number of atoms in the molecule based on geometry.
+
+        Returns:
+            int: Total number of atoms.
+        """
+        if not self.geometry:
+            return 1  # Default to 1 for atoms or when geometry is not loaded
+
+        # Count atoms from geometry if available
+        lines = self.geometry.strip().split("\n")
+        return len(lines)
+
+    def count_electrons(self):
+        """
+        Calculate total number of electrons in the molecule.
+
+        Returns:
+            int: Total number of electrons.
+        """
+        # Base calculation: atomic number minus charge
+        base_electrons = 0
+
+        if self.geometry:
+            # Count electrons from geometry
+            from ..utils.parsers import get_atomic_number  # Assuming you have this function
+            lines = self.geometry.strip().split("\n")
+            base_electrons = sum(get_atomic_number(line.split()[0]) for line in lines)
+        elif self.name:
+            # Fallback to predefined electronic configurations
+            electron_map = {
+                "harmonium": 2,  # Special case for harmonium
+                # Add more predefined atoms as needed
+            }
+            base_electrons = electron_map.get(self.name.lower(), 0)
+
+        # Subtract electrons based on charge
+        electrons = base_electrons - self.charge
+
+        return electrons
+
     def __str__(self):
         if self.is_harmonium:
             return f"Harmonium(w={self.omega})"

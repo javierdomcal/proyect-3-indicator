@@ -8,13 +8,15 @@ $cubefile
 $Coulomb Hole !select an option
 ontop          !C1, all, c1approx,intra
 $On top
-CALC_000001.dm2p
+no
 $scanning_props
 1
 1
-1
-x
 2
+x,z
+5
 0.05
 $ID
+.true.
+$Ontop_Output_format
 .true.

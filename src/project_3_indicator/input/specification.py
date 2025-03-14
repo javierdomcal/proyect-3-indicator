@@ -67,24 +67,42 @@ class InputSpecification:
 
     def validate_dependencies(self):
         """
-        Validates compatibility across molecule, basis, and method, especially with shared parameters like omega.
-        Raises errors for inconsistencies.
+        Validate compatibility of basis set with molecule.
         """
-        # Check omega consistency if harmonium molecule and even-tempered basis are used
+        # Harmonium case (existing check)
         if self.molecule.is_harmonium and self.basis.is_even_tempered:
             if self.molecule.omega != self.basis.omega:
                 raise ValueError(
                     "Inconsistent omega values for harmonium molecule and even-tempered basis set."
                 )
 
-        # Check if the selected method is supported for the given molecule and basis set
-        if self.method.is_fullci and self.molecule.count_atoms() > 4:
-            raise ValueError(
-                "Full CI method is not supported for molecules with more than 4 atoms."
-            )
+        # Even-tempered basis validation
+        if self.basis.is_even_tempered:
+            # Check for helium-like atom case
+            if (self.molecule.count_atoms() == 1 and
+                self.molecule.count_electrons() == 2):
 
-        # Additional compatibility checks can be added here if needed
-        self.logger.info("Dependencies validated successfully.")
+                # Additional check: ensure atomic number is within supported range
+                from ..utils.parsers import get_atomic_number
+                atomic_number = get_atomic_number(self.molecule.unique_atoms()[0])
+
+                # Supported atomic numbers for 2-electron systems (He to N)
+                if atomic_number < 2 or atomic_number > 7:
+                    raise ValueError(
+                        f"Even-tempered basis for 2-electron systems is only supported for atomic numbers 2-7 (He to N). "
+                        f"Provided atomic number: {atomic_number}"
+                    )
+
+                return
+
+            # Harmonium case remains the same
+            if self.molecule.is_harmonium:
+                return
+
+            # If neither condition is met, raise an error
+            raise ValueError(
+                "Even-tempered basis is only supported for single-atom systems with 2 electrons or harmonium"
+            )
 
     def get_registry_label(self):
         return(f"{self.molecule}_{self.method}_{self.basis}")
