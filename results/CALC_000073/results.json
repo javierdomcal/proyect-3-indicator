@@ -1,0 +1,36 @@
+{
+  "calculation_info": {
+    "id": "CALC_000073",
+    "molecule_id": 9,
+    "method_id": 3,
+    "basis_id": 4,
+    "scanning_props_id": 5,
+    "status": "registered",
+    "config": "SP",
+    "created_at": "2025-02-20 18:30:17",
+    "last_updated": null,
+    "message": null,
+    "results_path": null,
+    "molecule_name": "hydrogen_5eq",
+    "method_name": "HF",
+    "basis_name": "cc-pVTZ",
+    "omega": null,
+    "charge": 0,
+    "multiplicity": 1,
+    "n_electrons": null,
+    "m_orbitals": null,
+    "excited_state": null,
+    "atom_indices": "1",
+    "directions": "x,z",
+    "end_distance": 3.0,
+    "step_size": 0.05
+  },
+  "results": {
+    "energy": {
+      "scf": -0.798145055938,
+      "hf": -0.7981451
+    },
+    "calculation_time": "0 days  0 hours  0 minutes  1.0 seconds.",
+    "status": "completed"
+  }
+}

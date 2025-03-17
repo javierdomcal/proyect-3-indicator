@@ -1,0 +1,35 @@
+{
+  "calculation_info": {
+    "id": "CALC_000039",
+    "molecule_id": 5,
+    "method_id": 4,
+    "basis_id": 7,
+    "scanning_props_id": 2,
+    "status": "registered",
+    "config": "SP",
+    "created_at": "2025-02-20 18:04:05",
+    "last_updated": null,
+    "message": null,
+    "results_path": null,
+    "molecule_name": "berilium",
+    "method_name": "CASSCF(4,5)",
+    "basis_name": "aug-cc-pVQZ",
+    "omega": null,
+    "charge": 0,
+    "multiplicity": 1,
+    "n_electrons": 4,
+    "m_orbitals": 5,
+    "excited_state": null,
+    "atom_indices": "1",
+    "directions": "z",
+    "end_distance": 1.5,
+    "step_size": 0.05
+  },
+  "results": {
+    "energy": {
+      "hf": -14.6167755
+    },
+    "calculation_time": "0 days  0 hours  0 minutes 13.2 seconds.",
+    "status": "completed"
+  }
+}

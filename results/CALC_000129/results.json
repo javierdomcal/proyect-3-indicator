@@ -1,0 +1,35 @@
+{
+  "calculation_info": {
+    "id": "CALC_000129",
+    "molecule_id": 12,
+    "method_id": 8,
+    "basis_id": 8,
+    "scanning_props_id": 3,
+    "status": "registered",
+    "config": "SP",
+    "created_at": "2025-02-20 19:28:10",
+    "last_updated": null,
+    "message": null,
+    "results_path": null,
+    "molecule_name": "butadiene",
+    "method_name": "CASSCF(4,4)",
+    "basis_name": "TZVP",
+    "omega": null,
+    "charge": 0,
+    "multiplicity": 1,
+    "n_electrons": 4,
+    "m_orbitals": 4,
+    "excited_state": null,
+    "atom_indices": "1",
+    "directions": "x,z",
+    "end_distance": 5.0,
+    "step_size": 0.05
+  },
+  "results": {
+    "energy": {
+      "hf": -154.4813682
+    },
+    "calculation_time": "0 days  0 hours  0 minutes 53.0 seconds.",
+    "status": "completed"
+  }
+}

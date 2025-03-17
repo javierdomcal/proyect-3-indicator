@@ -1,0 +1,36 @@
+{
+  "calculation_info": {
+    "id": "CALC_000001",
+    "molecule_id": 1,
+    "method_id": 1,
+    "basis_id": 1,
+    "scanning_props_id": 1,
+    "status": "registered",
+    "config": "SP",
+    "created_at": "2025-03-12 16:00:00",
+    "last_updated": null,
+    "message": null,
+    "results_path": null,
+    "molecule_name": "ethene",
+    "method_name": "HF",
+    "basis_name": "TZVP",
+    "omega": null,
+    "charge": 0,
+    "multiplicity": 1,
+    "n_electrons": null,
+    "m_orbitals": null,
+    "excited_state": null,
+    "atom_indices": "1",
+    "directions": "x,z",
+    "end_distance": 5.0,
+    "step_size": 0.05
+  },
+  "results": {
+    "energy": {
+      "scf": -78.0606076314,
+      "hf": -78.0606076
+    },
+    "calculation_time": "0 days  0 hours  0 minutes  1.1 seconds.",
+    "status": "completed"
+  }
+}
