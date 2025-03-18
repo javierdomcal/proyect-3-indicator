@@ -18,3 +18,5 @@ z
 0.05
 $ID
 .true.
+$Ontop_Output_format
+.true.

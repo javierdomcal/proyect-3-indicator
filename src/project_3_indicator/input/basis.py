@@ -7,16 +7,18 @@ import pandas as pd
 
 
 class BasisSet:
-    def __init__(self, basis_name, omega=None):
+    def __init__(self, basis_name, omega=None, molecule=None):
         """
         Initializes a BasisSet instance.
 
         Parameters:
         - basis_name (str): Name of the basis set. If it follows the pattern "8SPDF", it's an even-tempered basis.
         - omega (float, optional): Omega parameter required for even-tempered bases associated with harmonium.
+        - molecule (Molecule, optional): Molecule instance needed for helium-like atom case
         """
         self.basis_name = basis_name
         self.omega = omega
+        self.molecule = molecule
         self.n = None
         self.angular_momentum = None
         self.is_even_tempered = self.check_if_even_tempered()
@@ -26,10 +28,7 @@ class BasisSet:
         self.coefficients = None
 
         # Load coefficients if the basis is even-tempered
-        if self.is_even_tempered:
-            if omega is None:
-                raise ValueError("Even-tempered basis requires the omega parameter.")
-            self.load_even_tempered_coefficients()
+
 
     def check_if_even_tempered(self):
         """
@@ -44,32 +43,39 @@ class BasisSet:
             return True
         return False
 
-def load_even_tempered_coefficients(self):
-    """
-    Load coefficients for even-tempered basis.
+    def load_even_tempered_coefficients(self):
+        """
+        Load coefficients for even-tempered basis.
 
-    Supports both harmonium and helium-like atom cases.
-    """
-    try:
-        # Determine which CSV to use
-        if self.is_even_tempered:
+        Supports both harmonium and helium-like atom cases.
+        """
+        try:
+            # Determine which CSV to use
             if self.omega is not None:
-                # Harmonium case (existing implementation)
+                # Harmonium case
                 csv_path = os.path.join(UTILS_DIR, "even-tempered-coefficients.csv")
-                row = pd.read_csv(csv_path)[(df["n"] == self.n) &
-                                            (abs(df["omega"].astype(float) - self.omega) < 0.00001)]
-            else:
+                df = pd.read_csv(csv_path)
+                row = df[(df["n"] == self.n) &
+                         (abs(df["omega"].astype(float) - self.omega) < 0.00001)]
+            elif self.molecule is not None:
                 # Helium-like atom case
                 csv_path = os.path.join(UTILS_DIR, "even-tempered-coefficients-helium.csv")
 
+                # Check if file exists
+                if not os.path.exists(csv_path):
+                    raise FileNotFoundError(f"Required CSV file {csv_path} not found.")
+
+                # Import here to avoid circular imports
+                from ..utils.parsers import get_atomic_number
+
                 # Get atomic number for the atom
-                from ..utils.parsers import get_atomic_number  # Assuming this exists
+                atomic_symbol = self.molecule.unique_atoms()[0] if self.molecule.unique_atoms() else "He"
+                atomic_number = get_atomic_number(atomic_symbol)
 
-                # If atom is not specified, use the molecule's unique atoms
-                atomic_number = get_atomic_number(self.molecule.unique_atoms()[0])
-
-                row = pd.read_csv(csv_path)[(df["n"] == self.n) &
-                                            (df["Z"] == atomic_number)]
+                df = pd.read_csv(csv_path)
+                row = df[(df["n"] == self.n) & (df["Z"] == atomic_number)]
+            else:
+                raise ValueError("Either omega or molecule must be provided for even-tempered basis sets")
 
             if row.empty:
                 raise ValueError(f"Coefficients not found for specified parameters in {csv_path}")
@@ -79,10 +85,10 @@ def load_even_tempered_coefficients(self):
 
             print(f"Even-tempered coefficients loaded: alpha={self.alpha}, beta={self.beta}")
 
-    except FileNotFoundError:
-        print(f"CSV file {csv_path} not found.")
-    except Exception as e:
-        print("Error loading even-tempered coefficients:", e)
+        except FileNotFoundError as e:
+            raise FileNotFoundError(f"CSV file error: {str(e)}")
+        except Exception as e:
+            raise ValueError(f"Error loading even-tempered coefficients: {str(e)}")
 
     def __str__(self):
         """

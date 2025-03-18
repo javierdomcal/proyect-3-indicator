@@ -9,7 +9,7 @@ import os
 from pathlib import Path
 
 # Allow overriding the project root with an environment variable
-PROJECT_ROOT = Path(os.environ.get("PROJECT_ROOT", Path(__file__).parent.parent.parent.absolute()))
+PROJECT_ROOT = Path(os.environ.get("PROJECT_ROOT", "/home/javi/Desktop/Doctorado/proyect-3-indicator"))
 
 # Main directories
 UTILS_DIR = PROJECT_ROOT / "utils"
@@ -29,14 +29,14 @@ SLURM_DIR = PROJECT_ROOT / "slurm_scripts"
 # Storage directories
 STORAGE_DIR = UTILS_DIR / "storage"
 METADATA_DIR = STORAGE_DIR
-REGISTRY_DIR = STORAGE_DIR
+REGISTRY_DIR = UTILS_DIR
 STATUS_DIR = STORAGE_DIR
 
 # Configuration files
 CLUSTER_CONFIG = UTILS_DIR / "cluster_config.json"
 
 # Important files
-REGISTRY_FILE = REGISTRY_DIR / "registry.json"
+REGISTRY_FILE = REGISTRY_DIR / "registry.db"
 METADATA_FILE = METADATA_DIR / "metadata.json"
 STATUS_FILE = STATUS_DIR / "status.json"
 

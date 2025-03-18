@@ -1,9 +1,9 @@
 %chk=CALC_000001.chk
 %mem=4GB
 %NProcShared=1
-#P SP HF/TZVP gfinput fchk=all out=wfx
+#P SP CASSCF(2,2)/TZVP gfinput fchk=all density=current iop(5/33=1) out=wfx
 
-CALC_000001 ethene HF TZVP
+CALC_000001 ethene CASSCF(2,2) TZVP
 
 0 1
 C        0.66900000    0.00000000    0.00000000

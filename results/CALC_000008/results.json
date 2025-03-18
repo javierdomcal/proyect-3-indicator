@@ -1,24 +1,24 @@
 {
   "calculation_info": {
     "id": "CALC_000008",
-    "molecule_id": 3,
+    "molecule_id": 2,
     "method_id": 2,
-    "basis_id": 7,
+    "basis_id": 5,
     "scanning_props_id": 2,
     "status": "registered",
     "config": "SP",
-    "created_at": "2025-02-20 17:26:27",
+    "created_at": "2025-03-18 17:20:23",
     "last_updated": null,
     "message": null,
     "results_path": null,
     "molecule_name": "helium",
-    "method_name": "CASSCF(2,2)",
-    "basis_name": "aug-cc-pVQZ",
+    "method_name": "CISD",
+    "basis_name": "aug-cc-pVTZ",
     "omega": null,
     "charge": 0,
     "multiplicity": 1,
-    "n_electrons": 2,
-    "m_orbitals": 2,
+    "n_electrons": null,
+    "m_orbitals": null,
     "excited_state": null,
     "atom_indices": "1",
     "directions": "z",
@@ -27,9 +27,11 @@
   },
   "results": {
     "energy": {
-      "hf": -2.8777149
+      "scf": -2.86118342612,
+      "mp2": -0.28948042411193,
+      "hf": -2.8611834
     },
-    "calculation_time": "0 days  0 hours  0 minutes  5.8 seconds.",
+    "calculation_time": "0 days  0 hours  0 minutes  1.6 seconds.",
     "status": "completed"
   }
 }

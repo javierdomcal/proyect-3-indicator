@@ -101,7 +101,7 @@ class InputFileGenerator:
                     )
 
             if wfx:
-                f.write(f"\n{self.title}.wfx\n\n")
+                f.write(f"{self.title}.wfx\n\n")
 
 
 
@@ -171,7 +171,7 @@ class InputFileGenerator:
             f.write(".true.\n")
 
             f.write("$Ontop_Output_format\n")
-            f.write(".true.\n")
+            f.write(".false.\n")
 
         print(f"INCA input file '{filename}' generated successfully.")
 
