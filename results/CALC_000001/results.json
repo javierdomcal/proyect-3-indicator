@@ -7,7 +7,7 @@
     "scanning_props_id": 1,
     "status": "registered",
     "config": "SP",
-    "created_at": "2025-03-12 16:00:00",
+    "created_at": "2025-03-17 15:23:58",
     "last_updated": null,
     "message": null,
     "results_path": null,
@@ -30,7 +30,7 @@
       "scf": -78.0606076314,
       "hf": -78.0606076
     },
-    "calculation_time": "0 days  0 hours  0 minutes  1.1 seconds.",
+    "calculation_time": "0 days  0 hours  0 minutes  1.0 seconds.",
     "status": "completed"
   }
 }

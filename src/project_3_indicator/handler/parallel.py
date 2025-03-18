@@ -64,6 +64,7 @@ class ParallelHandler:
                     <th style="border: 1px solid #ddd; padding: 8px;">Molecule</th>
                     <th style="border: 1px solid #ddd; padding: 8px;">Method</th>
                     <th style="border: 1px solid #ddd; padding: 8px;">Basis</th>
+                    <th style="border: 1px solid #ddd; padding: 8px;">ID</th>
                     <th style="border: 1px solid #ddd; padding: 8px;">Status</th>
                     <th style="border: 1px solid #ddd; padding: 8px;">Time</th>
                 </tr>
@@ -87,6 +88,8 @@ class ParallelHandler:
                     <td style="border: 1px solid #ddd; padding: 8px;">{calc['molecule_name']}</td>
                     <td style="border: 1px solid #ddd; padding: 8px;">{calc['method_name']}</td>
                     <td style="border: 1px solid #ddd; padding: 8px;">{calc['basis_name']}</td>
+                    <td style="border: 1px solid #ddd; padding: 8px;">{calc['calc_id']}</td>
+
                     <td style="border: 1px solid #ddd; padding: 8px;">
                         {calc['status']}
                         {f'<div style="color: red; font-size: 0.9em;">{error_msg}</div>' if error_msg else ''}
@@ -217,7 +220,8 @@ class ParallelHandler:
                             'scanning_props': scanning_props,
                             'job_name': job_name,
                             'excited_state': excited_state,
-                            'status': 'pending'
+                            'status': 'pending',
+                            'calc_id': None  # Initialize with None
                         }
                         calcs.append(calc_params)
                         self.calculations.append(calc_params.copy())

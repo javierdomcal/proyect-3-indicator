@@ -20,6 +20,7 @@ from ..database.operations import DatabaseOperations
 from ..config.settings import RESULTS_DIR
 from ..cluster.command import ClusterCommands
 from ..utils.parsers import parse_gaussian_log
+from ..utils.cube import read_cube_file, to_dataframe  # Import the new cube functions
 
 class CalculationHandler:
     def __init__(self, connection, file_manager, job_manager):
@@ -40,7 +41,7 @@ class CalculationHandler:
 
 
     def handle_calculation(self, molecule_name, method_name, basis_name,
-                         config="SP", charge=0, multiplicity=1,
+                         config="Opt", charge=0, multiplicity=1,
                          omega=None, scanning_props=None, excited_state=None):
         """
         Handle complete calculation workflow.
@@ -177,55 +178,6 @@ class CalculationHandler:
             logging.error(f"Error storing results for {calc_id}: {str(e)}")
             raise
 
-    def read_cube_file(cube_path):
-        """Read a cube file and return the grid data and values."""
-        with open(cube_path, 'r') as f:
-            # Skip the first two comment lines
-            next(f)
-            next(f)
-
-            # Read grid specs
-            parts = next(f).split()
-            natoms = int(parts[0])
-            origin = np.array([float(parts[1]), float(parts[2]), float(parts[3])])
-
-            # Read grid dimensions and step sizes
-            nx_line = next(f).split()
-            ny_line = next(f).split()
-            nz_line = next(f).split()
-
-            nx = int(nx_line[0])
-            ny = int(ny_line[0])
-            nz = int(nz_line[0])
-
-            dx = float(nx_line[1])
-            dy = float(ny_line[2])
-            dz = float(nz_line[3])
-
-            # Skip atom coordinates
-            for _ in range(natoms):
-                next(f)
-
-            # Read the volumetric data
-            values = []
-            for line in f:
-                values.extend([float(val) for val in line.split()])
-
-            values = np.array(values)
-
-            # Create the grid
-            x = np.linspace(origin[0], origin[0] + (nx-1)*dx, nx)
-            y = np.linspace(origin[1], origin[1] + (ny-1)*dy, ny)
-            z = np.linspace(origin[2], origin[2] + (nz-1)*dz, nz)
-
-            # Create meshgrid
-            X, Y, Z = np.meshgrid(x, y, z, indexing='ij')
-
-            # Reshape values to match grid shape
-            values = values.reshape((nx, ny, nz))
-
-            return X, Y, Z, values, (nx, ny, nz)
-
     def get_processed_results(self, calc_id):
         """Get processed calculation results in standardized format."""
         try:
@@ -254,32 +206,28 @@ class CalculationHandler:
 
             cube_df = None
             if ontop_path.exists() and density_path.exists() and id_path.exists():
-                # Read the cube files
-                X, Y, Z, ontop_values, dims = read_cube_file(ontop_path)
-                _, _, _, density_values, _ = read_cube_file(density_path)
-                _, _, _, id_values, _ = read_cube_file(id_path)
+                try:
+                    # Using the new cube utils module
+                    ontop_data = read_cube_file(ontop_path)
+                    density_data = read_cube_file(density_path)
+                    id_data = read_cube_file(id_path)
 
-                # Flatten the arrays for DataFrame creation
-                x_flat = X.flatten()
-                y_flat = Y.flatten()
-                z_flat = Z.flatten()
-                ontop_flat = ontop_values.flatten()
-                density_flat = density_values.flatten()
-                id_flat = id_values.flatten()
+                    # Convert to dataframes
+                    ontop_df = to_dataframe(ontop_data)
+                    density_df = to_dataframe(density_data)
+                    id_df = to_dataframe(id_data)
 
-                # Create DataFrame
-                cube_df = pd.DataFrame({
-                    'x': x_flat,
-                    'y': y_flat,
-                    'z': z_flat,
-                    'ontop': ontop_flat,
-                    'density': density_flat,
-                    'indicator': id_flat
-                })
+                    # Combine the dataframes
+                    cube_df = ontop_df.rename(columns={'value': 'ontop'})
+                    cube_df['density'] = density_df['value']
+                    cube_df['indicator'] = id_df['value']
 
-                print(f"Created DataFrame with {len(cube_df)} grid points")
+                    logging.info(f"Created DataFrame with {len(cube_df)} grid points")
+                except Exception as e:
+                    logging.error(f"Error processing cube files: {e}")
+                    cube_df = None
             else:
-                print("One or more cube files not found")
+                logging.info("One or more cube files not found")
 
 
             processed_results = {

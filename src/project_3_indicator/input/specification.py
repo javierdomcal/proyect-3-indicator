@@ -54,6 +54,8 @@ class InputSpecification:
         else:
             self.config = "SP" if self.molecule.count_atoms() <= 1 else config
 
+        # Set molecule reference in basis if it's an even-tempered basis
+
 
         self.atoms_to_import = []
         self.scanning_props = scanning_props if scanning_props else ScanningProperties(self.molecule)
@@ -63,6 +65,8 @@ class InputSpecification:
 
         # Validate and initialize parameters
         self.validate_dependencies()
+        if basis.is_even_tempered:
+            basis.load_even_tempered_coefficients()
         self.atoms_to_import = self.handle_imported_basis()
 
     def validate_dependencies(self):
@@ -82,9 +86,13 @@ class InputSpecification:
             if (self.molecule.count_atoms() == 1 and
                 self.molecule.count_electrons() == 2):
 
+                if self.basis.is_even_tempered and self.basis.molecule is None:
+                    self.basis.molecule = self.molecule
+
                 # Additional check: ensure atomic number is within supported range
                 from ..utils.parsers import get_atomic_number
-                atomic_number = get_atomic_number(self.molecule.unique_atoms()[0])
+                symbol = self.molecule.unique_atoms()[0] if self.molecule.unique_atoms() else "He"
+                atomic_number = get_atomic_number(symbol)
 
                 # Supported atomic numbers for 2-electron systems (He to N)
                 if atomic_number < 2 or atomic_number > 7:
@@ -92,6 +100,14 @@ class InputSpecification:
                         f"Even-tempered basis for 2-electron systems is only supported for atomic numbers 2-7 (He to N). "
                         f"Provided atomic number: {atomic_number}"
                     )
+
+                # Set the molecule reference in the basis if not already set
+                if self.basis.molecule is None:
+                    self.basis.molecule = self.molecule
+
+                # Reload the coefficients if needed
+                if self.basis.alpha is None or self.basis.beta is None:
+                    self.basis.load_even_tempered_coefficients()
 
                 return
 

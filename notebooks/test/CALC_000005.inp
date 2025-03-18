@@ -12,9 +12,11 @@ CALC_000005.dm2p
 $scanning_props
 1
 1
-2
-x,z
-5
+1
+z
+1.5
 0.05
 $ID
+.true.
+$Ontop_Output_format
 .true.

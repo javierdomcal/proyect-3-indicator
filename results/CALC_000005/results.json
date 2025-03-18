@@ -1,19 +1,19 @@
 {
   "calculation_info": {
     "id": "CALC_000005",
-    "molecule_id": 3,
-    "method_id": 1,
+    "molecule_id": 2,
+    "method_id": 2,
     "basis_id": 2,
-    "scanning_props_id": 3,
+    "scanning_props_id": 2,
     "status": "registered",
     "config": "SP",
-    "created_at": "2025-03-12 11:39:05",
+    "created_at": "2025-03-18 17:20:08",
     "last_updated": null,
     "message": null,
     "results_path": null,
-    "molecule_name": "ethene",
+    "molecule_name": "helium",
     "method_name": "CISD",
-    "basis_name": "TZVP",
+    "basis_name": "cc-pVDZ",
     "omega": null,
     "charge": 0,
     "multiplicity": 1,
@@ -21,17 +21,17 @@
     "m_orbitals": null,
     "excited_state": null,
     "atom_indices": "1",
-    "directions": "x,z",
-    "end_distance": 5.0,
+    "directions": "z",
+    "end_distance": 1.5,
     "step_size": 0.05
   },
   "results": {
     "energy": {
-      "scf": -78.0606076314,
-      "mp2": -0.78350667910636,
-      "hf": -78.0606
+      "scf": -2.85516047724,
+      "mp2": -0.28809888167941,
+      "hf": -2.8551605
     },
-    "calculation_time": "0 days  0 hours  0 minutes  6.9 seconds.",
+    "calculation_time": "0 days  0 hours  0 minutes  1.5 seconds.",
     "status": "completed"
   }
 }

@@ -5,6 +5,7 @@ from pathlib import Path
 from datetime import datetime
 from ..database.operations import DatabaseOperations
 from ..input.specification import InputSpecification
+from ..config.settings import REGISTRY_DIR, RESULTS_DIR
 
 class Registry:
     """
@@ -14,8 +15,7 @@ class Registry:
     def __init__(self):
         """Initialize registry with database operations."""
         self.db = DatabaseOperations()
-        self.results_dir = Path("results")
-
+        self.results_dir = RESULTS_DIR
     def register_calculation(self, input_spec: InputSpecification) -> str:
         """
         Register a new calculation or return existing ID if found.
