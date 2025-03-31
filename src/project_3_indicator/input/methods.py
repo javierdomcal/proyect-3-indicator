@@ -4,27 +4,27 @@ import re
 
 
 class Method:
-    def __init__(self, method_name, excited_state=None):
+    def __init__(self, name, excited_state=None):
         """
         Initializes a Method instance.
 
         Parameters:
-        - method_name (str): Name of the calculation method, which can be standard (e.g., HF, MP2)
+        - name (str): Name of the calculation method, which can be standard (e.g., HF, MP2)
           or CASSCF with parameters in the format "CASSCF[n,m]".
         """
-        self.method_name = method_name
+        self.name = name
         self.excited_state = excited_state
         self.n = None
         self.m = None
-        self.is_casscf = method_name.lower().startswith("casscf")
-        self.is_fullci = method_name.lower().startswith("fullci")
-        self.is_hf = method_name.lower().startswith("hf")
-        print(f"Method name: {method_name}", self.is_hf)
+        self.is_casscf = name.lower().startswith("casscf")
+        self.is_fullci = name.lower().startswith("fullci")
+        self.is_hf = name.lower().startswith("hf")
+        print(f"Method name: {name}", self.is_hf)
         self.method_keywords = ""
 
         # Extract n and m if method is CASSCF with parameters
         if self.is_casscf:
-            match = re.match(r"CASSCF\((\d+),(\d+)\)", method_name, re.IGNORECASE)
+            match = re.match(r"CASSCF\((\d+),(\d+)\)", name, re.IGNORECASE)
             if not match:
                 raise ValueError(
                     "CASSCF method requires parameters in the format 'CASSCF[n,m]'."
@@ -49,7 +49,7 @@ class Method:
         """
         Returns a string representation of the method.
         """
-        return f"{self.method_name}"
+        return f"{self.name}"
 
 
 if __name__ == "__main__":

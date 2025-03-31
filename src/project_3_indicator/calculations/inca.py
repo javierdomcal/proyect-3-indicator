@@ -5,7 +5,6 @@ Handles INCA calculations.
 import os
 import logging
 from ..calculations.base import Calculation
-from ..utils.generator import InputFileGenerator
 
 
 class INCACalculation(Calculation):
@@ -16,13 +15,12 @@ class INCACalculation(Calculation):
             colony_dir = f"{self.connection.colony_dir}/{job_name}"
 
             # Generate INCA input file
-            generator = InputFileGenerator(job_name, input_spec, type="inca")
 
             # Generate and upload input file
             input_dir = "test"
             os.makedirs(input_dir, exist_ok=True)
             inp_file = os.path.join(input_dir, f"{job_name}.inp")
-            generator.generate_input_file()
+            self._generate_inca_input(input_spec)
 
             # Upload to colony
             self.file_manager.upload_file(inp_file, f"{colony_dir}/{job_name}.inp")
@@ -38,7 +36,7 @@ class INCACalculation(Calculation):
 
             # Check required input files from previous calculations
             required_files = [f"{job_name}.wfx"]
-            if input_spec.method.method_name.upper() != "HF":
+            if input_spec.method.name.upper() != "HF":
                 required_files.append(f"{job_name}.dm2p")
 
             for file in required_files:
@@ -68,4 +66,40 @@ class INCACalculation(Calculation):
 
         for file in files_to_move:
             self.move_to_scratch(job_name, file)
+
+    def _generate_inca_input(self, inp):
+        """Generate INCA input file (.inp)."""
+        filename = "./test/" + str(inp.calc_id) + ".inp"
+        with open(filename, "w") as f:
+            f.write("test_input\n")
+            f.write("$wfxfile\n")
+            f.write(f"{str(inp.calc_id)}.wfx\n")
+            f.write("$logfile\n")
+            f.write("no\n")
+            f.write("$cubefile\n")
+            f.write(".false.\n")
+            f.write("$Coulomb Hole !select an option\n")
+            f.write("ontop          !C1, all, c1approx,intra\n")
+            f.write("$On top\n")
+            if inp.method.name.upper() != "HF":
+                f.write(f"{str(inp.calc_id)}.dm2p\n")
+            else:
+                f.write("no\n")
+
+
+
+            f.write("$ID\n")
+            f.write(".true.\n")
+
+            f.write("$Ontop_Output_format\n")
+            f.write(".false.\n")
+
+            f.write("{inp.grid.to_string()}\n")
+
+            f.write("{inp.generate_properties_string()}\n")
+
+
+
+
+        print(f"INCA input file '{filename}' generated successfully.")
 

@@ -1,6 +1,6 @@
 test_input
 $wfxfile
-CALC_000005.wfx
+1.wfx
 $logfile
 no
 $cubefile
@@ -8,7 +8,7 @@ $cubefile
 $Coulomb Hole !select an option
 ontop          !C1, all, c1approx,intra
 $On top
-CALC_000005.dm2p
+1.dm2p
 $ID
 .true.
 $Ontop_Output_format

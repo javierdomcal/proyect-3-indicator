@@ -29,6 +29,7 @@ class CorrelationFlux(FluxManager):
         3. DM2PRIM calculation
         4. INCA calculation
         """
+        job_name = str(job_name)
         try:
 
             if input_spec.method.is_hf:

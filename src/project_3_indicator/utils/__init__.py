@@ -1,7 +1,6 @@
 """
 Utilities package initialization.
 """
-from .generator import InputFileGenerator
 from .log_config import setup_logging
 from .parsers import parse_gaussian_log
 from .cube import (
@@ -16,7 +15,6 @@ from .cube import (
 )
 
 __all__ = [
-    "InputFileGenerator",
     "setup_logging",
     "parse_gaussian_log",
     "read_cube_file",

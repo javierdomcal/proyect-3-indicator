@@ -36,22 +36,34 @@ class ScreeningHandler:
         Returns:
             InputSpecification for screening calculation
         """
-        # Create copies of original components
-        molecule = deepcopy(original_spec.molecule)
-        method_name = screening_dict.get('method', original_spec.method.method_name)
-        method = Method(method_name, excited_state=None)  # Force ground state for optimization
-        basis = BasisSet(screening_dict.get('basis', original_spec.basis.basis_name))
+        # Prepare input dictionary based on original specification
+        input_dict = {
+            "molecule": original_spec.molecule.name,
+            "charge": original_spec.molecule.charge,
+            "multiplicity": original_spec.molecule.multiplicity,
+            "omega": original_spec.molecule.omega,
+            "method": screening_dict.get('method', original_spec.method.name),
+            "basis": screening_dict.get('basis', original_spec.basis.name),
+            "config": "Opt",  # Always optimization for screening
+            "grid": original_spec.grid.to_dict() if hasattr(original_spec.grid, 'to_dict') else {},
+            "properties": original_spec.properties.properties if hasattr(original_spec.properties, 'properties') else [],
+            "excited_state": None  # Force ground state for optimization
+        }
 
-        # Create screening specification
-        screening_spec = InputSpecification(
-            molecule=molecule,
-            method=method,
-            basis=basis,
-            title=f"{original_spec.title}_screening",
-            config="Opt"  # Always optimization for screening
-        )
+        # Create screening specification with the new input format
+        screening_spec = InputSpecification(input_dict)
 
-        screening_spec.calc_id = original_spec.calc_id  # Use original calculation ID
+        # Update title to include screening suffix
+        screening_spec.title = f"{original_spec.title}_screening"
+
+        # Copy geometry from original spec if available
+        if hasattr(original_spec.molecule, 'geometry') and original_spec.molecule.geometry:
+            screening_spec.molecule.geometry = deepcopy(original_spec.molecule.geometry)
+
+        # Use original calculation ID if available
+        if hasattr(original_spec, 'calc_id') and original_spec.calc_id:
+            screening_spec.calc_id = original_spec.calc_id
+
         return screening_spec
 
     def handle_screening(self, original_spec, screening_dict):
@@ -103,8 +115,8 @@ class ScreeningHandler:
                 coords = atom['coordinates']
                 xyz_content += f"{atom['symbol']}  {coords[0]:.6f}  {coords[1]:.6f}  {coords[2]:.6f}\n"
 
-            # Create new molecule with optimized geometry
-            original_spec.molecule.geometry = xyz_content
+            # Update original specification with optimized geometry
+            original_spec.update_geometry(xyz_content)
 
             # Clean up screening calculation files
             self.cleanup_screening(f"{original_spec.title}_screening")
@@ -144,19 +156,17 @@ if __name__ == "__main__":
             file_manager = FileTransfer(connection)
             job_manager = JobManager(connection, file_manager)
 
-            # Create test molecule and specifications
-            molecule = Molecule(name="ethene")
-            method = Method("HF")
-            basis = BasisSet("sto-3g")
+            # Create test input dictionary
+            input_dict = {
+                "molecule": "ethene",
+                "method": "HF",
+                "basis": "sto-3g",
+                "config": "SP"
+            }
 
-            # Create original specification
-            original_spec = InputSpecification(
-                molecule=molecule,
-                method=method,
-                basis=basis,
-                title="ethene_test",
-                config="SP"
-            )
+            # Create original specification with the new input format
+            original_spec = InputSpecification(input_dict)
+            original_spec.title = "ethene_test"  # Set title explicitly
 
             # Create screening dictionary
             screening_dict = {

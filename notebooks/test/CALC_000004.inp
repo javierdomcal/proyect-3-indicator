@@ -9,14 +9,9 @@ $Coulomb Hole !select an option
 ontop          !C1, all, c1approx,intra
 $On top
 CALC_000004.dm2p
-$scanning_props
-1
-1
-2
-x,z
-5
-0.05
 $ID
 .true.
 $Ontop_Output_format
-.true.
+.false.
+{inp.grid.to_string()}
+{inp.generate_properties_string()}

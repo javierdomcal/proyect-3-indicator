@@ -1,12 +1,17 @@
 %chk=CALC_000008.chk
 %mem=4GB
 %NProcShared=1
-#P SP CISD/aug-cc-pVTZ gfinput fchk=all density=rhoci iop(9/40=7) iop(9/28=-1) use=l916 out=wfx
+#P Opt CASSCF(2,2)/TZVP gfinput fchk=all density=current iop(5/33=1) out=wfx
 
-CALC_000008 helium CISD aug-cc-pVTZ
+CALC_000008 ethene CASSCF(2,2) TZVP
 
 0 1
-He    0.0000   0.0000   0.0000
+C        0.66900000    0.00000000    0.00000000
+C       -0.66900000    0.00000000    0.00000000
+H        1.23600000    0.93400000    0.00000000
+H        1.23600000   -0.93400000    0.00000000
+H       -1.23600000    0.93400000    0.00000000
+H       -1.23600000   -0.93400000    0.00000000
 
 CALC_000008.wfx
 

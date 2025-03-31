@@ -52,7 +52,7 @@ class DMNCalculation(Calculation):
             log_file = f"{job_name}.log"
 
             colony_log_path = os.path.join(
-                self.connection.colony_dir, job_name, log_file
+                self.connection.colony_dir, str(job_name), log_file
             )
 
             if not self.commands.check_file_exists(colony_log_path):

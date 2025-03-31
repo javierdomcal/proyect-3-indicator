@@ -7,18 +7,16 @@ import pandas as pd
 
 
 class BasisSet:
-    def __init__(self, basis_name, omega=None, molecule=None):
+    def __init__(self, name):
         """
         Initializes a BasisSet instance.
 
         Parameters:
-        - basis_name (str): Name of the basis set. If it follows the pattern "8SPDF", it's an even-tempered basis.
+        - name (str): Name of the basis set. If it follows the pattern "8SPDF", it's an even-tempered basis.
         - omega (float, optional): Omega parameter required for even-tempered bases associated with harmonium.
         - molecule (Molecule, optional): Molecule instance needed for helium-like atom case
         """
-        self.basis_name = basis_name
-        self.omega = omega
-        self.molecule = molecule
+        self.name = name
         self.n = None
         self.angular_momentum = None
         self.is_even_tempered = self.check_if_even_tempered()
@@ -34,7 +32,7 @@ class BasisSet:
         """
         Checks if the basis name follows the format for even-tempered bases (e.g., "8SPDF").
         """
-        match = re.match(r"(\d+)([A-Z]+)$", self.basis_name)
+        match = re.match(r"(\d+)([A-Z]+)$", self.name)
         if match:
             self.n = int(match.group(1))
             self.angular_momentum = match.group(
@@ -43,7 +41,7 @@ class BasisSet:
             return True
         return False
 
-    def load_even_tempered_coefficients(self):
+    def load_even_tempered_coefficients(self, molecule):
         """
         Load coefficients for even-tempered basis.
 
@@ -51,13 +49,13 @@ class BasisSet:
         """
         try:
             # Determine which CSV to use
-            if self.omega is not None:
+            if molecule.omega is not None:
                 # Harmonium case
                 csv_path = os.path.join(UTILS_DIR, "even-tempered-coefficients.csv")
                 df = pd.read_csv(csv_path)
                 row = df[(df["n"] == self.n) &
-                         (abs(df["omega"].astype(float) - self.omega) < 0.00001)]
-            elif self.molecule is not None:
+                         (abs(df["omega"].astype(float) - molecule.omega) < 0.00001)]
+            elif molecule is not None:
                 # Helium-like atom case
                 csv_path = os.path.join(UTILS_DIR, "even-tempered-coefficients-helium.csv")
 
@@ -69,7 +67,7 @@ class BasisSet:
                 from ..utils.parsers import get_atomic_number
 
                 # Get atomic number for the atom
-                atomic_symbol = self.molecule.unique_atoms()[0] if self.molecule.unique_atoms() else "He"
+                atomic_symbol = molecule.unique_atoms()[0] if molecule.unique_atoms() else "He"
                 atomic_number = get_atomic_number(atomic_symbol)
 
                 df = pd.read_csv(csv_path)
@@ -94,7 +92,7 @@ class BasisSet:
         """
         Returns a string representation of the basis set.
         """
-        return f"{self.basis_name}"
+        return f"{self.name}"
 
 
 if __name__ == "__main__":

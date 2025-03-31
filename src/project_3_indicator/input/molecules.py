@@ -5,7 +5,7 @@ from collections import Counter
 
 
 class Molecule:
-    def __init__(self, name="harmonium", omega=None, charge=0, multiplicity=1):
+    def __init__(self, name="harmonium",  charge=0, multiplicity=1, omega=None,):
         """
         Initialize a Molecule instance.
 
@@ -35,24 +35,42 @@ class Molecule:
             self.molecule_type = 'atom'
 
     def classify_molecule(self):
-        """Classify the molecule type based on its geometry."""
-        if not self.geometry:
-            self.molecule_type = "atom"
-        else:
-            lines = self.geometry.strip().split("\n")
-            num_atoms = len(lines)
+        """Classify the molecule type based on its geometry.
 
-            if num_atoms == 1:
-                self.molecule_type = "atom"
-            elif num_atoms == 2:
-                self.molecule_type = "diatomic"
-            else:
-                # Check if all atoms lie on the same plane (z-coordinate)
-                z_coords = [float(line.split()[3]) for line in lines]
-                if all(abs(z - z_coords[0]) < 1e-6 for z in z_coords):
-                    self.molecule_type = "planar"
-                else:
-                    self.molecule_type = "other"
+        Classifications:
+        - atom: 1 or 0 atoms
+        - linear: 2 or more atoms, all coordinates aligned on x-axis
+        - planar: 3 or more atoms, all coordinates in xy plane (z=0)
+        - other: non-planar molecules
+        """
+        # Use the internal get_geometry function
+        geometry_data = self.get_geometry()
+
+        # Check if geometry is loaded
+        if isinstance(geometry_data, str):
+            self.molecule_type = "atom"
+            return
+
+        # Number of atoms
+        num_atoms = len(geometry_data)
+
+        # Atom case
+        if num_atoms <= 1:
+            self.molecule_type = "atom"
+            return
+
+        # Extract coordinates from geometry data
+        coords = [(atom[1], atom[2], atom[3]) for atom in geometry_data]
+
+        # Linear case: 2 or more atoms, all aligned on z-axis (y and x coordinates are 0)
+        if all(abs(coord[0]) < 1e-6 and abs(coord[1]) < 1e-6 for coord in coords):
+            self.molecule_type = "linear"
+        # Planar case: 3 or more atoms, all in xy plane (z=0)
+        elif all(abs(coord[2]) < 1e-6 for coord in coords) and num_atoms >= 3:
+            self.molecule_type = "planar"
+        # Other case: non-planar molecules
+        else:
+            self.molecule_type = "other"
 
     def load_geometry(self):
         """Load molecular geometry from XYZ file."""
@@ -198,6 +216,58 @@ class Molecule:
             charge_str = '' if self.charge == 0 else f"( charge = {self.charge})"
             multiplicity_str = '' if self.multiplicity == 1 else f"( mult = {self.multiplicity})"
             return f"{self.name.replace('_',' ')}{charge_str}{multiplicity_str}"
+
+    def get_geometry(self):
+        """
+        Get the molecular geometry as a list of lists.
+
+        Returns:
+            list or str: The molecular geometry as a list of lists where each inner list
+                        contains [atom_symbol, x, y, z] with coordinates as floats,
+                        or a string message if geometry is not loaded.
+        """
+        if not self.geometry:
+            return "Geometry not loaded"
+
+        try:
+            geometry_list = []
+            lines = self.geometry.strip().split('\n')
+
+            for line in lines:
+                # Skip empty lines
+                if not line.strip():
+                    continue
+
+                # Split the line and handle potential issues
+                parts = line.strip().split()
+                if len(parts) < 4:
+                    continue  # Skip lines that don't have enough data
+
+                atom = parts[0]
+                # Convert coordinates to float, with error handling
+                try:
+                    x = float(parts[1])
+                    y = float(parts[2])
+                    z = float(parts[3])
+                    geometry_list.append([atom, x, y, z])
+                except ValueError:
+                    # Handle case where coordinates can't be converted to float
+                    continue
+
+            return geometry_list
+        except Exception as e:
+            return f"Error parsing geometry: {str(e)}"
+
+    def get_xyz_geometry(self):
+        """
+        Get the molecular geometry as a list of XYZ coordinates.
+
+        Returns:
+            list: List of atomic coordinates in XYZ format.
+        """
+        if self.geometry:
+            return self.geometry
+        return "Geometry not loaded"
 
 
 if __name__ == "__main__":

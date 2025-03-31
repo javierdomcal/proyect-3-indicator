@@ -142,6 +142,26 @@ def to_dataframe(cube_data):
 
     return df
 
+def to_unique_dataframe(df_list):
+    """
+    Combine a list of DataFrames and remove duplicate rows.
+
+    Args:
+        df_list (list): List of DataFrames to combine
+
+    Returns:
+        pd.DataFrame: Combined DataFrame with duplicate rows removed
+    """
+    combined_df = pd.concat(df_list)
+    unique_df = combined_df.drop_duplicates(subset=['x', 'y', 'z'], keep='first')
+    return process_derived_properties(unique_df)
+
+def process_derived_properties(df):
+    if 'density' in df.columns and 'ontop' in df.columns:
+        df['X(r)'] = 2*df['ontop'] / df['density']**2
+    return df
+
+
 def get_value_at_point(cube_data, point):
     """
     Get the value at a specific point by interpolation.

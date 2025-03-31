@@ -4,8 +4,9 @@ import logging
 from ..input.molecules import Molecule
 from ..input.methods import Method
 from ..input.basis import BasisSet
-from ..input.scanning import ScanningProperties
-
+from ..input.grid import Grid
+from ..input.properties import Properties
+from ..utils.parsers import get_atomic_number
 
 class InputSpecification:
     # Hardcoded dictionary for imported basis sets and their specific atoms
@@ -16,57 +17,91 @@ class InputSpecification:
         "dec-cc-pv6z": ["Ne"],
     }
 
-    def __init__(
-        self, molecule, basis, method, title, config="Opt", scanning_props=None
-    ):
+    def __init__(self, input):
         """
-        Initializes the InputSpecification instance.
+        Initializes the InputSpecification instance from an input dictionary.
 
         Parameters:
-        - molecule (Molecule): An instance of Molecule.
-        - basis (BasisSet): An instance of BasisSet.
-        - method (Method): An instance of Method.
-        - title (str): Title for the calculation.
-        - config (str): Type of calculation, either "Opt" (optimization) or "SP" (single-point).
-        - scanning_props (ScanningProperties, optional): Properties for scanning calculations
+        - input: Dictionary with calculation parameters
+            molecule: String with molecule name
+            method: String with method name
+            basis: String with basis set name
+            charge: Molecular charge (default: 0)
+            multiplicity: Spin multiplicity (default: 1)
+            omega: Omega parameter for harmonium (default: None)
+            config: Type of calculation, either "Opt" or "SP" (default: "SP")
+            grid: Grid specification (default: {})
+            properties: List of properties to calculate (default: [])
+            excited_state: Excited state specification (default: None)
         """
         # Initialize logging
         logging.basicConfig(level=logging.INFO)
         self.logger = logging.getLogger(__name__)
 
-        # Validate input instances
-        if not isinstance(molecule, Molecule):
-            raise TypeError("Invalid molecule instance provided.")
-        if not isinstance(basis, BasisSet):
-            raise TypeError("Invalid basis set instance provided.")
-        if not isinstance(method, Method):
-            raise TypeError("Invalid method instance provided.")
+        # Extract required parameters with validation
+        if "molecule" not in input:
+            raise ValueError("Molecule specification is required")
+        if "method" not in input:
+            raise ValueError("Method specification is required")
+        if "basis" not in input:
+            raise ValueError("Basis set specification is required")
 
-        self.molecule = molecule
-        self.basis = basis
-        self.method = method
-        self.title = title
-        if self.molecule == "harmonium":
-            self.method.method_keywords + "gfinput "
+        # Log what we're creating
+        self.logger.info(f"Creating input specification for {input['molecule']} with {input['method']}/{input['basis']}")
 
-        if method.excited_state is not None:
+        # Create component objects with defaults for optional parameters
+        self.molecule = Molecule(
+            name=input["molecule"],
+            charge=input.get("charge", 0),
+            multiplicity=input.get("multiplicity", 1),
+            omega=input.get("omega", None)
+        )
+
+        self.method = Method(
+            name=input["method"],
+            excited_state=input.get("excited_state", None)
+        )
+
+        self.basis = BasisSet(
+            name=input["basis"]
+        )
+
+        # Set title for the calculation
+        self.title = f"{self.molecule}_{self.method}_{self.basis}"
+
+        # Determine configuration type based on molecule and method
+        if self.molecule.name == "harmonium":
+            self.method.method_keywords += "gfinput "
+
+        if hasattr(self.method, 'excited_state') and self.method.excited_state is not None:
+            self.config = "SP"
+        elif self.molecule.count_atoms() <= 1:
             self.config = "SP"
         else:
-            self.config = "SP" if self.molecule.count_atoms() <= 1 else config
+            self.config = input.get("config", "SP")
 
-        # Set molecule reference in basis if it's an even-tempered basis
+        # Set up grid
+        self.grid = Grid(input.get("grid", {}))
+        self.grid.calculate_default_from_geometry(self.molecule)
+        self.grid.from_molecule(self.molecule)
 
+        # Set properties
+        self.properties = Properties(input.get("properties", []))
 
-        self.atoms_to_import = []
-        self.scanning_props = scanning_props if scanning_props else ScanningProperties(self.molecule)
+        # Initialize calculation ID (will be set later by handler)
         self.calc_id = None
+        self.calc_id_str = None
 
-        self.logger.info(f"Creating input specification for {title}")
 
-        # Validate and initialize parameters
+        # Validate and initialize additional parameters
         self.validate_dependencies()
-        if basis.is_even_tempered:
-            basis.load_even_tempered_coefficients()
+
+        # Handle even-tempered basis if needed
+        if hasattr(self.basis, 'is_even_tempered') and self.basis.is_even_tempered:
+            if hasattr(self.basis, 'load_even_tempered_coefficients'):
+                self.basis.load_even_tempered_coefficients(self.molecule)
+
+        # Handle imported basis sets
         self.atoms_to_import = self.handle_imported_basis()
 
     def validate_dependencies(self):
@@ -74,27 +109,25 @@ class InputSpecification:
         Validate compatibility of basis set with molecule.
         """
         # Harmonium case (existing check)
-        if self.molecule.is_harmonium and self.basis.is_even_tempered:
-            if self.molecule.omega != self.basis.omega:
-                raise ValueError(
-                    "Inconsistent omega values for harmonium molecule and even-tempered basis set."
-                )
+        if hasattr(self.molecule, 'is_harmonium') and self.molecule.is_harmonium:
+            if hasattr(self.basis, 'is_even_tempered') and self.basis.is_even_tempered:
+                if self.molecule.omega != self.basis.omega:
+                    raise ValueError(
+                        "Inconsistent omega values for harmonium molecule and even-tempered basis set."
+                    )
 
         # Even-tempered basis validation
-        if self.basis.is_even_tempered:
-            # Check for helium-like atom case
-            if (self.molecule.count_atoms() == 1 and
-                self.molecule.count_electrons() == 2):
-
+        if hasattr(self.basis, 'is_even_tempered') and self.basis.is_even_tempered:
+            # Check for helium-like atom case (single atom with 2 electrons)
+            if (self.molecule.count_atoms() == 1 and self.molecule.count_electrons() == 2):
                 if self.basis.is_even_tempered and self.basis.molecule is None:
                     self.basis.molecule = self.molecule
 
-                # Additional check: ensure atomic number is within supported range
-                from ..utils.parsers import get_atomic_number
+                # Check atomic number is within supported range
                 symbol = self.molecule.unique_atoms()[0] if self.molecule.unique_atoms() else "He"
                 atomic_number = get_atomic_number(symbol)
 
-                # Supported atomic numbers for 2-electron systems (He to N)
+                # Only He to N (atomic numbers 2-7) are supported
                 if atomic_number < 2 or atomic_number > 7:
                     raise ValueError(
                         f"Even-tempered basis for 2-electron systems is only supported for atomic numbers 2-7 (He to N). "
@@ -105,14 +138,13 @@ class InputSpecification:
                 if self.basis.molecule is None:
                     self.basis.molecule = self.molecule
 
-                # Reload the coefficients if needed
                 if self.basis.alpha is None or self.basis.beta is None:
                     self.basis.load_even_tempered_coefficients()
 
                 return
 
-            # Harmonium case remains the same
-            if self.molecule.is_harmonium:
+            # Harmonium case is allowed
+            if hasattr(self.molecule, 'is_harmonium') and self.molecule.is_harmonium:
                 return
 
             # If neither condition is met, raise an error
@@ -121,32 +153,36 @@ class InputSpecification:
             )
 
     def get_registry_label(self):
-        return(f"{self.molecule}_{self.method}_{self.basis}")
+        """Returns a string label for registry lookup."""
+        return f"{self.molecule}_{self.method}_{self.basis}"
 
     def get_registry(self):
+        """Returns a dictionary with the complete specification for registry."""
         return {
             "molecule": self.molecule,
-            "basis" : self.basis,
-            "method" : self.method,
-            "scanning" : self.scanning_props,
-            "config" : self.config
+            "basis": self.basis,
+            "method": self.method,
+            "grid": self.grid.to_string(),
+            "properties": str(self.properties),
+            "config": self.config
         }
 
     def handle_imported_basis(self):
         """
-        Checks if the basis set is in the hardcoded imported_basis dictionary and prepares the basis set for input generation.
+        Checks if the basis set is in the hardcoded imported_basis dictionary and
+        prepares the basis set for input generation.
         """
         atoms_to_import = []
-        if self.basis.basis_name in self.imported_basis:
+        if self.basis.name in self.imported_basis:
             for atom in self.molecule.unique_atoms():
-                if atom in self.imported_basis[self.basis.basis_name]:
+                if atom in self.imported_basis[self.basis.name]:
                     self.basis.is_imported = True
                     atoms_to_import.append(atom)
             self.logger.info(
-                f"Imported custom basis set '{self.basis.basis_name}' for atoms: {atoms_to_import}"
+                f"Imported custom basis set '{self.basis.name}' for atoms: {atoms_to_import}"
             )
         else:
-            self.logger.info(f"Using default basis set '{self.basis.basis_name}'.")
+            self.logger.info(f"Using default basis set '{self.basis.name}'.")
         return atoms_to_import
 
     def __str__(self):
@@ -159,72 +195,24 @@ class InputSpecification:
             f"    Number of atoms: {self.molecule.count_atoms()}\n"
             f"    Charge: {self.molecule.charge}\n"
             f"    Multiplicity: {self.molecule.multiplicity}\n"
-            f"  Basis Set: {self.basis.basis_name}\n"
-            f"    Type: {'Imported' if self.basis.is_imported else 'Standard'}\n"
-            f"    Even-tempered: {self.basis.is_even_tempered}\n"
-            f"  Method: {self.method.method_name}\n"
-            f"    CASSCF: {self.method.is_casscf}\n"
-            f"    FullCI: {self.method.is_fullci}\n"
+            f"  Basis Set: {self.basis.name}\n"
+            f"    Type: {'Imported' if hasattr(self.basis, 'is_imported') and self.basis.is_imported else 'Standard'}\n"
+            f"    Even-tempered: {hasattr(self.basis, 'is_even_tempered') and self.basis.is_even_tempered}\n"
+            f"  Method: {self.method.name}\n"
+            f"    CASSCF: {hasattr(self.method, 'is_casscf') and self.method.is_casscf}\n"
+            f"    FullCI: {hasattr(self.method, 'is_fullci') and self.method.is_fullci}\n"
             f"  Configuration: {self.config}\n"
+            f"  Grid: {self.grid.to_string()}\n"
+            f"  Properties: {str(self.properties)}\n"
         )
         if self.atoms_to_import:
             summary += f"  Imported Atoms: {', '.join(self.atoms_to_import)}\n"
         return summary
 
+    def get_calc_id(self, id):
+        self.calc_id = id
+        self.calc_id_str = f'CALC_{self.calc_id:06d}'
+
     def update_geometry(self, new_geometry):
         """Update molecule geometry."""
         self.molecule.geometry = new_geometry
-
-
-if __name__ == "__main__":
-    # Test the InputSpecification class
-    try:
-        # Test with a standard molecule and method
-        print("\nTesting standard molecule setup:")
-        molecule = Molecule(name="water")
-        method = Method("HF")
-        basis = BasisSet("sto-3g")
-        spec = InputSpecification(
-            molecule=molecule,
-            method=method,
-            basis=basis,
-            title="Water_Test",
-            config="SP",
-        )
-        print(spec)
-
-        # Test with harmonium
-        print("\nTesting harmonium setup:")
-        harmonium = Molecule(name="harmonium", omega=0.5)
-        even_basis = BasisSet("8SPDF", omega=0.5)
-        spec_harmonium = InputSpecification(
-            molecule=harmonium, method=method, basis=even_basis, title="Harmonium_Test"
-        )
-        print(spec_harmonium)
-
-        # Test with imported basis
-        print("\nTesting imported basis setup:")
-        helium = Molecule(name="helium")
-        imported_basis = BasisSet("aug-pc-4")
-        spec_imported = InputSpecification(
-            molecule=helium, method=method, basis=imported_basis, title="Helium_Test"
-        )
-        print(spec_imported)
-
-        # Test error cases
-        print("\nTesting error cases:")
-        try:
-            # Test omega mismatch
-            wrong_harmonium = Molecule(name="harmonium", omega=0.5)
-            wrong_basis = BasisSet("8SPDF", omega=0.6)
-            spec_wrong = InputSpecification(
-                molecule=wrong_harmonium,
-                method=method,
-                basis=wrong_basis,
-                title="Wrong_Test",
-            )
-        except ValueError as e:
-            print(f"Caught expected error: {e}")
-
-    except Exception as e:
-        print(f"Test failed: {e}")

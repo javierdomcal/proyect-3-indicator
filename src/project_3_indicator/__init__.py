@@ -1,96 +1,65 @@
 """
 Main package interface for running quantum chemistry calculations.
 """
-
 import logging
 from pathlib import Path
+import atexit
 
 from .cluster.connection import ClusterConnection
 from .cluster.transfer import FileTransfer
 from .jobs.manager import JobManager
 from .handler.calculation import CalculationHandler
-from .handler.parallel import ParallelHandler
-from .database.operations import DatabaseOperations
+from .database import get_database, close_database
 
-def run_calculation(molecule_name, method_name, basis_name,
-                   config="SP", charge=0, multiplicity=1,
-                   omega=None, scanning_props=None, excited_state=None, max_workers=4):
+logger = logging.getLogger(__name__)
+
+# Initialize database once and register cleanup
+db = get_database()
+atexit.register(close_database)
+
+def run_calculation(input):
     """
-    Main interface for running calculations.
+    Run a quantum chemistry calculation with the provided input parameters.
 
-    Automatically detects if parallel execution is needed based on inputs.
-    At least one input must be provided.
+    This is the main entry point for the package.
 
     Args:
-        molecule_name: String or list of molecule names
-        method_name: String or list of method names (e.g., "HF", "CASSCF(2,2)")
-        basis_name: String or list of basis set names
-        config: Calculation type ("SP" or "Opt"), default "SP"
-        charge: Molecular charge, default 0
-        multiplicity: Spin multiplicity, default 1
-        omega: Omega parameter for harmonium/even-tempered basis, default None
-        scanning_props: Properties to scan, default None
-        excited_state: Excited state number (None for ground state)
-        max_workers: Maximum number of parallel calculations, default 4
+        input (dict): Dictionary containing calculation parameters:
+            - molecule: Molecule name
+            - method: Method name
+            - basis: Basis set name
+            - config: Calculation type (SP/Opt), default "SP"
+            - charge: Molecular charge, default 0
+            - multiplicity: Spin multiplicity, default 1
+            - omega: Omega parameter for harmonium
+            - properties: Properties to calculate
 
     Returns:
-        If all inputs are single strings:
-            dict: Results dictionary for single calculation
-        If any input is a list:
-            list: List of result dictionaries for each calculation
+        dict: The calculation results
+
+    Examples:
+        # Single calculation
+        result = run_calculation({
+            'molecule': 'water',
+            'method': 'B3LYP',
+            'basis': '6-31G'
+        })
     """
     try:
-        # Check if any input is a list
-        is_parallel = any(
-            isinstance(x, list)
-            for x in [molecule_name, method_name, basis_name]
-        )
-
         # Create cluster connection and required components
         with ClusterConnection() as connection:
             file_manager = FileTransfer(connection)
             job_manager = JobManager(connection, file_manager)
-            db_operations = DatabaseOperations()
 
-            if is_parallel:
-                handler = ParallelHandler(
-                    connection,
-                    file_manager,
-                    job_manager,
-                    max_workers=max_workers
-                )
-                results = handler.handle_parallel_calculations(
-                    molecule_name=molecule_name,
-                    method_name=method_name,
-                    basis_name=basis_name,
-                    config=config,
-                    charge=charge,
-                    multiplicity=multiplicity,
-                    omega=omega,
-                    scanning_props=scanning_props,
-                    excited_state=excited_state
-
-                )
-            else:
-                handler = CalculationHandler(
-                    connection,
-                    file_manager,
-                    job_manager
-                        )
-                results = handler.handle_calculation(
-                    molecule_name=molecule_name,
-                    method_name=method_name,
-                    basis_name=basis_name,
-                    config=config,
-                    charge=charge,
-                    multiplicity=multiplicity,
-                    omega=omega,
-                    scanning_props=scanning_props,
-                    excited_state=excited_state
-                )
-
-            return results
+            # Create handler and run calculation
+            handler = CalculationHandler(connection, file_manager, job_manager, db)
+            return handler.handle_calculation(input)
 
     except Exception as e:
-        logging.error(f"Error in calculation execution: {str(e)}")
+        logger.error(f"Error in calculation execution: {str(e)}")
         raise
+
+# For backward compatibility
+def get_database_instance():
+    """Get the global database instance."""
+    return db
