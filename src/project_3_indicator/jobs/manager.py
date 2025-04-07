@@ -18,11 +18,23 @@ class JobManager:
         self.monitor = JobMonitor(connection)
         self.submitter = JobSubmitter(connection)
 
+    def submit_job(self, job_name, scratch_dir, step=None):
+        """Submit a SLURM job using the generated script."""
+        full_name = job_name if step is None else f"{job_name}_{step}"
+        command = f"sbatch {scratch_dir}/{full_name}.slurm"
 
-    def submit_and_monitor(self, job_name, step=None):
+        output = self.commands.execute_command(command)
+        if "Submitted batch job" in output:
+            job_id = output.strip().split()[-1]
+            logging.info(f"Submitted job with ID {job_id} for {full_name}")
+            return job_id
+        else:
+            raise RuntimeError(f"Failed to submit job. Output: {output}")
+
+    def submit_and_monitor(self, job_name, scratch_dir, step=None):
         """Submit a job and monitor it until completion."""
         try:
-            job_id = self.submitter.submit_job(job_name, step)
+            job_id = self.submit_job(job_name, scratch_dir, step)
             logging.info(f"Submitted job {job_id} for {job_name}_{step}")
 
             self.monitor.monitor_job(job_id, job_name, step)

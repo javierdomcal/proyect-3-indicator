@@ -81,9 +81,8 @@ class InputSpecification:
             self.config = input.get("config", "SP")
 
         # Set up grid
-        self.grid = Grid(input.get("grid", {}))
-        self.grid.calculate_default_from_geometry(self.molecule)
-        self.grid.from_molecule(self.molecule)
+        self.grid = Grid(input.get("grid", {}), self.molecule)
+
 
         # Set properties
         self.properties = Properties(input.get("properties", []))

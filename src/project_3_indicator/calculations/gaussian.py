@@ -18,21 +18,18 @@ class GaussianCalculation(Calculation):
             input_dir = "test"
             os.makedirs(input_dir, exist_ok=True)
             com_file = os.path.join(input_dir, f"{job_name}.com")
-            self._generate_gaussian_input(input_spec, nproc=nproc,  wfx=wfx)
+            self._generate_gaussian_input(job_name, input_spec, nproc=nproc,  wfx=wfx)
 
             # Define cluster paths
-            colony_dir = f"{self.connection.colony_dir}/{job_name}"
-            colony_com = f"{colony_dir}/{job_name}.com"
+            colony_com = f"{self.colony_dir}/{job_name}.com"
 
             # Upload .com file to colony
             self.file_manager.upload_file(com_file, colony_com)
 
             # Generate SLURM script and upload
-            slurm_script = self.job_manager.submitter.generate_gaussian_script(
-                job_name, f"{self.connection.scratch_dir}/{job_name}"
-            )
+            slurm_script = self.generate_gaussian_script(job_name)
             self.file_manager.upload_file(
-                slurm_script, f"{colony_dir}/{job_name}_gaussian.slurm"
+                slurm_script, f"{self.colony_dir}/{job_name}_gaussian.slurm"
             )
 
             logging.info(f"Input files prepared for {job_name}")
@@ -45,12 +42,12 @@ class GaussianCalculation(Calculation):
 
     def _move_required_files_to_scratch(self, job_name):
         """Move required files to scratch directory."""
-        self.move_to_scratch(job_name, f"{job_name}.com")
-        self.move_to_scratch(job_name, f"{job_name}_gaussian.slurm")
+        self.move_to_scratch(f"{job_name}.com")
+        self.move_to_scratch(f"{job_name}_gaussian.slurm")
 
-    def _generate_gaussian_input(self, inp, nproc,  wfx=True):
+    def _generate_gaussian_input(self, job_name, inp, nproc,  wfx=True):
         """Generate Gaussian input file (.com)."""
-        filename = "./test/" + str(inp.calc_id) + ".com"
+        filename = "./test/" + job_name + ".com"
         basis_type = (
             "gen "
             if inp.basis.is_even_tempered or inp.basis.is_imported
@@ -59,7 +56,7 @@ class GaussianCalculation(Calculation):
 
         with open(filename, "w") as f:
             # Write Gaussian header
-            f.write(f"%chk={str(inp.calc_id)}.chk\n")
+            f.write(f"%chk={job_name}.chk\n")
             f.write(f"%mem=4GB\n")
             f.write(f"%NProcShared={nproc}\n")
             f.write(f"#P {inp.config} {inp.method.name}/{basis_type}")
@@ -119,7 +116,7 @@ class GaussianCalculation(Calculation):
                     )
 
             if wfx:
-                f.write(f"{str(inp.calc_id)}.wfx\n\n")
+                f.write(f"{job_name}.wfx\n\n")
 
 
 
@@ -148,3 +145,31 @@ class GaussianCalculation(Calculation):
         print(
             f"Basis coefficients for {atom} from {basis_file_path} written successfully."
         )
+
+    def generate_gaussian_script(self, job_name):
+        """Generate SLURM script for Gaussian calculation."""
+        script_path = os.path.join('test', f"{job_name}_gaussian.slurm")
+
+        content = f"""#!/bin/bash
+#SBATCH --qos=regular
+#SBATCH --job-name={job_name}_gaussian
+#SBATCH --cpus-per-task=1
+#SBATCH --mem=6gb
+#SBATCH --nodes=1
+#SBATCH --ntasks-per-node=1
+#SBATCH --error={self.scratch_dir}/{job_name}_gaussian.err
+#SBATCH --chdir={self.scratch_dir}
+
+cd {self.scratch_dir}
+source ~/.bashrc
+module load Gaussian/16
+g16 < {self.scratch_dir}/{job_name}.com > {self.scratch_dir}/{job_name}.log
+cd {self.colony_dir}
+pwd
+"""
+        with open(script_path, "w") as f:
+            f.write(content)
+
+        logging.info(f"Generated Gaussian SLURM script at {script_path}")
+
+        return script_path

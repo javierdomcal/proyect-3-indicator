@@ -162,3 +162,4 @@ class CalculationModel:
         """
         with self.db.transaction():
             return self.db.find_calculations_by_tag(tag)
+

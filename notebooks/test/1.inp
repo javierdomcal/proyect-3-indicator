@@ -3,15 +3,15 @@ $wfxfile
 1.wfx
 $logfile
 no
-$cubefile
+$Grid
+1 0.1
+1 0.1
+0.0 0.0
+$Grid_2
 .false.
-$Coulomb Hole !select an option
-ontop          !C1, all, c1approx,intra
-$On top
-1.dm2p
-$ID
-.true.
-$Ontop_Output_format
-.false.
-{inp.grid.to_string()}
-{inp.generate_properties_string()}
+$Properties
+2
+density total
+on_top all
+$DM2files
+1.dm2p no no

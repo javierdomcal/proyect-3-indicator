@@ -112,3 +112,57 @@ class PropertyModel:
 
         # Default empty list
         return []
+
+    def get_active_properties(self, calculation_id):
+        """
+        Get all active properties for a calculation.
+
+        Args:
+            calculation_id (int): Calculation ID
+
+        Returns:
+            list: List of active property names
+        """
+        with self.db.transaction():
+            conn = self.db.get_connection()
+            cursor = conn.cursor()
+
+            try:
+                cursor.execute(
+                    """SELECT property_name FROM properties
+                    WHERE calculation_id=?""",
+                    (calculation_id,)
+                )
+
+                return [row[0] for row in cursor.fetchall()]
+
+            except Exception as e:
+                logger.error(f"Error getting active properties for calculation {calculation_id}: {str(e)}")
+                return []
+
+    def get_completed_properties(self, calculation_id):
+        """
+        Get a list of properties that have been successfully calculated.
+
+        Args:
+            calculation_id (int): Calculation ID
+
+        Returns:
+            list: List of property names that have been completed
+        """
+        with self.db.transaction():
+            conn = self.db.get_connection()
+            cursor = conn.cursor()
+
+            try:
+                cursor.execute(
+                    """SELECT property_name FROM properties
+                    WHERE calculation_id=? AND completed=1""",
+                    (calculation_id,)
+                )
+
+                return [row[0] for row in cursor.fetchall()]
+
+            except Exception as e:
+                logger.error(f"Error getting completed properties for calculation {calculation_id}: {str(e)}")
+                return []

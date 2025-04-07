@@ -1,0 +1,19 @@
+test_input
+$wfxfile
+718794.wfx
+$logfile
+no
+$Grid
+0 0.0
+0 0.0
+1.0 0.05
+$Grid_2
+.false.
+$Properties
+4
+pair_density_nucleus 
+pair_density_nucleus_c1 
+pair_density_nucleus_c2 
+pair_density_nucleus_hf 
+$DM2files
+718794.dm2p 718794_hf.dm2p 718794_hfl.dm2p

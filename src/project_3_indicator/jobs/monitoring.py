@@ -15,7 +15,7 @@ class JobMonitor:
         self.connection = connection
         self.commands = ClusterCommands(connection)
         self.delay = 1  # Initial delay in seconds
-        self.max_delay = 60  # Maximum delay in seconds
+        self.max_delay = 20  # Maximum delay in seconds
 
     def monitor_job(self, job_id, job_name=None, step=None):
         """Monitor a SLURM job until completion."""

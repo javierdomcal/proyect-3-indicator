@@ -1,17 +1,20 @@
 {
   "calculation_info": {
     "id": 1,
-    "molecule_name": "helium",
-    "basis_name": "cc-pVDZ",
+    "molecule_name": "ethene",
+    "basis_name": "6-311G*",
     "method_name": "CASSCF(2,2)",
     "status": "running",
-    "properties": []
+    "properties": [
+      "density",
+      "on_top"
+    ]
   },
   "results": {
     "energy": {
-      "hf": -2.8701574
+      "hf": -78.0887379
     },
-    "calculation_time": "0 days  0 hours  0 minutes  4.4 seconds.",
+    "calculation_time": "0 days  0 hours  0 minutes  6.4 seconds.",
     "status": "completed"
   }
 }

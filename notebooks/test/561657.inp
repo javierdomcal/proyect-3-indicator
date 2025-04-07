@@ -1,0 +1,23 @@
+test_input
+$wfxfile
+561657.wfx
+$logfile
+no
+$Grid
+0 0.0
+0 0.0
+1.0 0.01
+$Grid_2
+.false.
+$Properties
+8
+pair_density_nucleus all
+pair_density_nucleus_c1 all
+pair_density_nucleus_c2 all
+pair_density_nucleus_hf all
+intracule all
+intracule_c1 all
+intracule_c2 all
+intracule_hf all
+$DM2files
+561657.dm2p 561657_hf.dm2p 561657_hfl.dm2p

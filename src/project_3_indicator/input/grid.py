@@ -1,11 +1,13 @@
 class Grid:
-    def __init__(self, grid_input=None):
+    def __init__(self, grid_input=None, molecule=None):
         """
         Initialize the Grid object based on the input dictionary.
         If no input is provided, default to max_size=1.0 and step_size=0.05 for all dimensions.
         """
         self.default_step = 0.05
         self.default_max = 1.0
+        self.calculate_default_from_geometry(molecule)
+        self.from_molecule(molecule)
         self.grid_input = grid_input or {}
         self.x = self._parse_dimension('x')
         self.y = self._parse_dimension('y')
@@ -30,7 +32,7 @@ class Grid:
         Build the string representation of the grid in the format:
         $Grid max_x step_x max_y step_y max_z step_z
         """
-        return f"$Grid\n {self.x[0]} {self.x[1]}\n {self.y[0]} {self.y[1]}\n {self.z[0]} {self.z[1]}\n"
+        return f"$Grid\n{self.x[0]} {self.x[1]}\n{self.y[0]} {self.y[1]}\n{self.z[0]} {self.z[1]}\n"
 
     def from_molecule(self, molecule):
         """
@@ -59,10 +61,10 @@ class Grid:
         max_z = max(atom[3] for atom in geometry)
 
         def calculate_max(value):
-            return max((value + 0.5), 1.0)
+            return max((value + 0.5), self.default_max)
 
 
-        self.x = [calculate_max(max_x), 0.05]
-        self.y = [calculate_max(max_y), 0.05]
-        self.z = [calculate_max(max_z), 0.05]
+        self.x = [calculate_max(max_x), self.default_step]
+        self.y = [calculate_max(max_y), self.default_step]
+        self.z = [calculate_max(max_z), self.default_step]
 

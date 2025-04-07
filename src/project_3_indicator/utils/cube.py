@@ -142,23 +142,50 @@ def to_dataframe(cube_data):
 
     return df
 
-def to_unique_dataframe(df_list):
+import pandas as pd
+
+def to_unique_dataframe(df_dict, fill_value=None):
     """
-    Combine a list of DataFrames and remove duplicate rows.
+    Combine multiple DataFrames stored in a dictionary and remove duplicate rows.
 
     Args:
-        df_list (list): List of DataFrames to combine
+        df_dict (dict): Dictionary of DataFrames to combine, where keys are property names.
+        fill_value: Value to fill for missing data in the outer join (default: None).
 
     Returns:
-        pd.DataFrame: Combined DataFrame with duplicate rows removed
+        pd.DataFrame: Combined DataFrame with all properties merged.
     """
-    combined_df = pd.concat(df_list)
-    unique_df = combined_df.drop_duplicates(subset=['x', 'y', 'z'], keep='first')
-    return process_derived_properties(unique_df)
+    if not df_dict:
+        return None
+
+    # Initialize the merged DataFrame
+    merged_df = None
+
+    for key, df in df_dict.items():
+        # Ensure the DataFrame has expected columns
+        if not {'x', 'y', 'z', 'value'}.issubset(df.columns):
+            raise ValueError(f"DataFrame '{key}' must contain 'x', 'y', 'z', and 'value' columns.")
+
+        # Rename 'value' column to match dictionary key
+        df = df.rename(columns={'value': key})
+
+        if merged_df is None:
+            merged_df = df
+        else:
+            merged_df = pd.merge(merged_df, df, on=['x', 'y', 'z'], how='outer')
+
+    # Fill missing values with the specified fill_value
+    if fill_value is not None:
+        merged_df = merged_df.fillna(fill_value)
+
+    merged_df = process_derived_properties(merged_df)
+
+    return merged_df
+
 
 def process_derived_properties(df):
-    if 'density' in df.columns and 'ontop' in df.columns:
-        df['X(r)'] = 2*df['ontop'] / df['density']**2
+    if 'density' in df.columns and 'on_top' in df.columns:
+        df['X(r)'] = 2*df['on_top'] / df['density']**2
     return df
 
 
@@ -210,18 +237,20 @@ def combine_cube_files(files_dict, output_path=None):
     df.rename(columns={'value': first_key}, inplace=True)
 
     # Add data from other files
-    for name, path in list(files_dict.items())[1:]:
+    for key, path in list(files_dict.items())[1:]:
+        # Use key instead of name
+        df[key] = tmp_df['value']
         if os.path.exists(path):
             try:
                 cube_data = read_cube_file(path)
                 tmp_df = to_dataframe(cube_data)
-                df[name] = tmp_df['value']
+                df[key] = tmp_df['value']
             except Exception as e:
                 logging.error(f"Error processing {path}: {str(e)}")
-                df[name] = np.nan
+                df[key] = np.nan
         else:
             logging.warning(f"File not found: {path}")
-            df[name] = np.nan
+            df[key] = np.nan
 
     # Save to CSV if output path provided
     if output_path:

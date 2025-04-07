@@ -15,123 +15,14 @@ class JobSubmitter:
         self.slurm_dir = slurm_dir
         os.makedirs(slurm_dir, exist_ok=True)
 
-    def submit_job(self, job_name, step=None):
-        """Submit a SLURM job using the generated script."""
-        full_name = job_name if step is None else f"{job_name}_{step}"
-        command = f"sbatch {self.connection.scratch_dir}/{job_name}/{full_name}.slurm"
 
-        output = self.commands.execute_command(command)
-        if "Submitted batch job" in output:
-            job_id = output.strip().split()[-1]
-            logging.info(f"Submitted job with ID {job_id} for {full_name}")
-            return job_id
-        else:
-            raise RuntimeError(f"Failed to submit job. Output: {output}")
 
-    def generate_gaussian_script(self, job_name, scratch_dir):
-        """Generate SLURM script for Gaussian calculation."""
-        script_path = os.path.join(self.slurm_dir, f"{job_name}_gaussian.slurm")
 
-        content = f"""#!/bin/bash
-#SBATCH --qos=regular
-#SBATCH --job-name={job_name}_gaussian
-#SBATCH --cpus-per-task=1
-#SBATCH --mem=6gb
-#SBATCH --nodes=1
-#SBATCH --ntasks-per-node=1
-#SBATCH --error={scratch_dir}/{job_name}_gaussian.err
-#SBATCH --chdir={scratch_dir}
 
-cd {scratch_dir}
-source ~/.bashrc
-module load Gaussian/16
-g16 < {scratch_dir}/{job_name}.com > {scratch_dir}/{job_name}.log
-cd /dipc/javidom/proyect-3-indicator/{job_name}
-pwd
-"""
-        with open(script_path, "w") as f:
-            f.write(content)
 
-        logging.info(f"Generated Gaussian SLURM script at {script_path}")
-        return script_path
 
-    def generate_dmn_script(self, job_name, scratch_dir):
-        """Generate SLURM script for DMN calculation."""
-        script_path = os.path.join(self.slurm_dir, f"{job_name}_dmn.slurm")
 
-        content = f"""#!/bin/bash
-#SBATCH --qos=regular
-#SBATCH --job-name={job_name}_dmn
-#SBATCH --cpus-per-task=1
-#SBATCH --mem=5gb
-#SBATCH --nodes=1
-#SBATCH --output={scratch_dir}/{job_name}_dmn.out
-#SBATCH --error={scratch_dir}/{job_name}_dmn.err
-#SBATCH --chdir={scratch_dir}
 
-cd {scratch_dir}
-source ~/.bashrc
-module load intel/2020a
-{scratch_dir}/../SOFT/DMN/DMN {scratch_dir}/{job_name}.log
-cd /dipc/javidom/proyect-3-indicator/{job_name}
-"""
-        with open(script_path, "w") as f:
-            f.write(content)
-
-        logging.info(f"Generated DMN SLURM script at {script_path}")
-        return script_path
-
-    def generate_dm2prim_script(self, job_name, scratch_dir):
-        """Generate SLURM script for DM2PRIM calculation."""
-        script_path = os.path.join(self.slurm_dir, f"{job_name}_dm2prim.slurm")
-
-        content = f"""#!/bin/bash
-#SBATCH --qos=regular
-#SBATCH --job-name={job_name}_dm2prim
-#SBATCH --cpus-per-task=1
-#SBATCH --mem=64gb
-#SBATCH --nodes=1
-#SBATCH --output={scratch_dir}/{job_name}_dm2prim.out
-#SBATCH --error={scratch_dir}/{job_name}_dm2prim.err
-#SBATCH --chdir={scratch_dir}
-
-cd {scratch_dir}
-source ~/.bashrc
-module load intel
-{scratch_dir}/../SOFT/DM2PRIM/DM2PRIM.x {job_name} 10 10 no no no yes
-cd /dipc/javidom/proyect-3-indicator/{job_name}
-"""
-        with open(script_path, "w") as f:
-            f.write(content)
-
-        logging.info(f"Generated DM2PRIM SLURM script at {script_path}")
-        return script_path
-
-    def generate_inca_script(self, job_name, scratch_dir):
-        """Generate SLURM script for INCA calculation."""
-        script_path = os.path.join(self.slurm_dir, f"{job_name}_inca.slurm")
-
-        content = f"""#!/bin/bash
-#SBATCH --qos=regular
-#SBATCH --job-name={job_name}_inca
-#SBATCH --cpus-per-task=1
-#SBATCH --mem=5gb
-#SBATCH --nodes=1
-#SBATCH --output={scratch_dir}/{job_name}_inca.out
-#SBATCH --error={scratch_dir}/{job_name}_inca.err
-#SBATCH --chdir={scratch_dir}
-
-cd {scratch_dir}
-source ~/.bashrc
-module load intel
-{scratch_dir}/../SOFT/INCA6_llum/roda.x {job_name}.inp
-cd /dipc/javidom/proyect-3-indicator/{job_name}
-"""
-        with open(script_path, "w") as f:
-            f.write(content)
-
-        logging.info(f"Generated INCA SLURM script at {script_path}")
-        return script_path
 
 
 if __name__ == "__main__":

@@ -1,0 +1,15 @@
+{
+  "format": "cube",
+  "dimensions": [
+    21,
+    21,
+    1
+  ],
+  "origin": [
+    -1.0,
+    -1.0,
+    0.0
+  ],
+  "path": "/home/javi/Desktop/Doctorado/proyect-3-indicator/results/239742/on_top.cube",
+  "atoms": 6
+}

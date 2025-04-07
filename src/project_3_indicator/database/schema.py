@@ -70,36 +70,44 @@ def create_schema(conn):
     ''')
 
     # Create properties table
+# Create property_definitions table
+    cursor.execute('''
+    CREATE TABLE IF NOT EXISTS property_definitions (
+        id INTEGER PRIMARY KEY,
+        name TEXT NOT NULL UNIQUE,
+        display_name TEXT,
+        latex TEXT,
+        electrons INTEGER,
+        description TEXT,
+        option TEXT,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        UNIQUE(name)
+    )
+    ''')
+
+    # Update properties table to be a many-to-many relationship
     cursor.execute('''
     CREATE TABLE IF NOT EXISTS properties (
         id INTEGER PRIMARY KEY,
         calculation_id INTEGER,
-        property_name TEXT NOT NULL,
+        property_id INTEGER,
+        requested INTEGER DEFAULT 1,
         completed INTEGER DEFAULT 0,
         property_data TEXT,
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
         updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
         FOREIGN KEY (calculation_id) REFERENCES calculations (id),
-        UNIQUE(calculation_id, property_name)
+        FOREIGN KEY (property_id) REFERENCES property_definitions (id),
+        UNIQUE(calculation_id, property_id)
     )
     ''')
 
-    # Create tags table
-    cursor.execute('''
-    CREATE TABLE IF NOT EXISTS tags (
-        id INTEGER PRIMARY KEY,
-        calculation_id INTEGER,
-        tag TEXT NOT NULL,
-        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-        FOREIGN KEY (calculation_id) REFERENCES calculations (id),
-        UNIQUE(calculation_id, tag)
-    )
-    ''')
+    # New index for properties
+    cursor.execute('CREATE INDEX IF NOT EXISTS idx_properties_property ON properties(property_id)')
+
 
     # Create indexes for better performance
     cursor.execute('CREATE INDEX IF NOT EXISTS idx_calculations_molecule ON calculations(molecule_id)')
-    cursor.execute('CREATE INDEX IF NOT EXISTS idx_properties_calculation ON properties(calculation_id)')
-    cursor.execute('CREATE INDEX IF NOT EXISTS idx_tags_calculation ON tags(calculation_id)')
 
     conn.commit()
     logger.info("Database schema created or verified")

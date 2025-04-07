@@ -1,10 +1,8 @@
 """
 Flux analysis package initialization.
 """
-from .correlation import CorrelationFlux
-from .flux_manager import FluxManager
+from .flux_manager import Flux
 
 __all__ = [
-    "CorrelationFlux",
     "FluxManager",
 ]
