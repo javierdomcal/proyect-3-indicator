@@ -30,10 +30,10 @@ class Properties:
             "electrons": 2,
             "description": "Electron pair density"
         },
-        "I_D": {
+        "indicator_dynamic": {
             "display_name": "Indicator Dynamic",
             "latex": r"I_D(\mathbf{r})",
-            "aliases": ["indicator dynamic", "ID", "dynamic", "id", "i_d"],
+            "aliases": ["indicator dynamic", "ID", "dynamic", "id", "i_d", "indicator_dynamic"],
             "electrons": 1,
             "description": "Indicator dynamic property"
         },

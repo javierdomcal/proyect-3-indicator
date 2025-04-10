@@ -22,24 +22,22 @@ class Molecule:
         self.is_harmonium = omega is not None
         self.geometry = None
         self.formula = None
-        self.molecule_type = None
 
         if not self.is_harmonium:
             self.load_geometry()
-            self.classify_molecule()
 
         if self.is_harmonium:
             self.name = "harmonium"
             self.charge = -2
             self.multiplicity = 1
-            self.molecule_type = 'atom'
+
 
     def classify_molecule(self):
         """Classify the molecule type based on its geometry.
 
         Classifications:
         - atom: 1 or 0 atoms
-        - linear: 2 or more atoms, all coordinates aligned on x-axis
+        - linear: 2 or more atoms, all coordinates aligned on z-axis
         - planar: 3 or more atoms, all coordinates in xy plane (z=0)
         - other: non-planar molecules
         """
@@ -48,29 +46,29 @@ class Molecule:
 
         # Check if geometry is loaded
         if isinstance(geometry_data, str):
-            self.molecule_type = "atom"
-            return
+            return "atom"
 
         # Number of atoms
         num_atoms = len(geometry_data)
+        print(f"Number of atoms: {num_atoms}")
+        print(f"Geometry data: {geometry_data}")
 
         # Atom case
         if num_atoms <= 1:
-            self.molecule_type = "atom"
-            return
+            return "atom"
 
         # Extract coordinates from geometry data
         coords = [(atom[1], atom[2], atom[3]) for atom in geometry_data]
 
         # Linear case: 2 or more atoms, all aligned on z-axis (y and x coordinates are 0)
-        if all(abs(coord[0]) < 1e-6 and abs(coord[1]) < 1e-6 for coord in coords):
-            self.molecule_type = "linear"
+        if all(abs(coord[0]) < 1e-6 and abs(coord[1]) < 1e-6 for coord in coords) and num_atoms >= 2:
+            return "linear"
         # Planar case: 3 or more atoms, all in xy plane (z=0)
         elif all(abs(coord[2]) < 1e-6 for coord in coords) and num_atoms >= 3:
-            self.molecule_type = "planar"
+            return "planar"
         # Other case: non-planar molecules
         else:
-            self.molecule_type = "other"
+            return "other"
 
     def load_geometry(self):
         """Load molecular geometry from XYZ file."""
@@ -106,19 +104,7 @@ class Molecule:
         )
         return formula_latex
 
-    def count_atoms(self):
-        """
-        Count total number of atoms in the molecule based on formula.
 
-        Returns:
-            int: Total number of atoms.
-        """
-        if not self.formula:
-            return 0
-
-        atom_counts = re.findall(r"([A-Z][a-z]*)(\d*)", self.formula)
-        total_atoms = sum(int(count) if count else 1 for _, count in atom_counts)
-        return total_atoms
 
     def unique_atoms(self):
         """
@@ -193,9 +179,8 @@ class Molecule:
 
         if self.geometry:
             # Count electrons from geometry
-            from ..utils.parsers import get_atomic_number  # Assuming you have this function
             lines = self.geometry.strip().split("\n")
-            base_electrons = sum(get_atomic_number(line.split()[0]) for line in lines)
+            base_electrons = sum(self.get_atomic_number(line.split()[0]) for line in lines)
         elif self.name:
             # Fallback to predefined electronic configurations
             electron_map = {
@@ -268,6 +253,42 @@ class Molecule:
         if self.geometry:
             return self.geometry
         return "Geometry not loaded"
+
+    def get_atomic_number(self,symbol):
+        """
+        Convert atomic symbol to atomic number.
+
+        Args:
+            symbol (str): Atomic symbol (e.g., 'H', 'He', 'C')
+
+        Returns:
+            int: Atomic number corresponding to the symbol
+        """
+        # Dictionary mapping atomic symbols to atomic numbers
+        atomic_numbers = {
+            'H': 1, 'He': 2, 'Li': 3, 'Be': 4, 'B': 5, 'C': 6, 'N': 7, 'O': 8, 'F': 9, 'Ne': 10,
+            'Na': 11, 'Mg': 12, 'Al': 13, 'Si': 14, 'P': 15, 'S': 16, 'Cl': 17, 'Ar': 18, 'K': 19, 'Ca': 20,
+            'Sc': 21, 'Ti': 22, 'V': 23, 'Cr': 24, 'Mn': 25, 'Fe': 26, 'Co': 27, 'Ni': 28, 'Cu': 29, 'Zn': 30,
+            'Ga': 31, 'Ge': 32, 'As': 33, 'Se': 34, 'Br': 35, 'Kr': 36, 'Rb': 37, 'Sr': 38, 'Y': 39, 'Zr': 40,
+            'Nb': 41, 'Mo': 42, 'Tc': 43, 'Ru': 44, 'Rh': 45, 'Pd': 46, 'Ag': 47, 'Cd': 48, 'In': 49, 'Sn': 50,
+            'Sb': 51, 'Te': 52, 'I': 53, 'Xe': 54, 'Cs': 55, 'Ba': 56, 'La': 57, 'Ce': 58, 'Pr': 59, 'Nd': 60,
+            'Pm': 61, 'Sm': 62, 'Eu': 63, 'Gd': 64, 'Tb': 65, 'Dy': 66, 'Ho': 67, 'Er': 68, 'Tm': 69, 'Yb': 70,
+            'Lu': 71, 'Hf': 72, 'Ta': 73, 'W': 74, 'Re': 75, 'Os': 76, 'Ir': 77, 'Pt': 78, 'Au': 79, 'Hg': 80,
+            'Tl': 81, 'Pb': 82, 'Bi': 83, 'Po': 84, 'At': 85, 'Rn': 86, 'Fr': 87, 'Ra': 88, 'Ac': 89, 'Th': 90,
+            'Pa': 91, 'U': 92, 'Np': 93, 'Pu': 94, 'Am': 95, 'Cm': 96, 'Bk': 97, 'Cf': 98, 'Es': 99, 'Fm': 100,
+            'Md': 101, 'No': 102, 'Lr': 103, 'Rf': 104, 'Db': 105, 'Sg': 106, 'Bh': 107, 'Hs': 108, 'Mt': 109,
+            'Ds': 110, 'Rg': 111, 'Cn': 112, 'Nh': 113, 'Fl': 114, 'Mc': 115, 'Lv': 116, 'Ts': 117, 'Og': 118
+        }
+
+        # Handle case sensitivity by converting the first letter to uppercase and rest to lowercase
+        if symbol and len(symbol) > 0:
+            formatted_symbol = symbol[0].upper() + symbol[1:].lower() if len(symbol) > 1 else symbol.upper()
+
+            if formatted_symbol in atomic_numbers:
+                return atomic_numbers[formatted_symbol]
+
+        # Return 0 for unrecognized symbols (could alternatively raise an exception)
+        return 0
 
 
 if __name__ == "__main__":

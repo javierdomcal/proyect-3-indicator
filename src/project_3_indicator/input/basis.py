@@ -64,11 +64,11 @@ class BasisSet:
                     raise FileNotFoundError(f"Required CSV file {csv_path} not found.")
 
                 # Import here to avoid circular imports
-                from ..utils.parsers import get_atomic_number
+
 
                 # Get atomic number for the atom
                 atomic_symbol = molecule.unique_atoms()[0] if molecule.unique_atoms() else "He"
-                atomic_number = get_atomic_number(atomic_symbol)
+                atomic_number = molecule.get_atomic_number(atomic_symbol)
 
                 df = pd.read_csv(csv_path)
                 row = df[(df["n"] == self.n) & (df["Z"] == atomic_number)]

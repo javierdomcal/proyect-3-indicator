@@ -1,0 +1,21 @@
+{
+  "calculation_info": {
+    "id": 214960,
+    "molecule_name": "helium",
+    "basis_name": "cc-pVDZ",
+    "method_name": "CASSCF(2,2)",
+    "status": "running",
+    "properties": [
+      "density",
+      "on_top",
+      "intracule"
+    ]
+  },
+  "results": {
+    "energy": {
+      "hf": -2.8701574
+    },
+    "calculation_time": "0 days  0 hours  0 minutes  4.4 seconds.",
+    "status": "completed"
+  }
+}

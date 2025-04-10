@@ -1,0 +1,17 @@
+test_input
+$wfxfile
+153795.wfx
+$logfile
+no
+$Grid
+0.669 0 0
+0 0 0
+0.0 4 0.05
+$Grid_2
+.false.
+$Properties
+2
+density total
+on_top all
+$DM2files
+153795.dm2p no no

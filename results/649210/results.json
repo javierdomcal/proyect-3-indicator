@@ -1,0 +1,20 @@
+{
+  "calculation_info": {
+    "id": 649210,
+    "molecule_name": "hydrogen_2eq",
+    "basis_name": "TZVP",
+    "method_name": "CASSCF(2,2)",
+    "status": "running",
+    "properties": [
+      "density",
+      "on_top"
+    ]
+  },
+  "results": {
+    "energy": {
+      "hf": -1.0572018
+    },
+    "calculation_time": "0 days  0 hours  0 minutes  4.9 seconds.",
+    "status": "completed"
+  }
+}

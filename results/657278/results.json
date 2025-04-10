@@ -1,0 +1,21 @@
+{
+  "calculation_info": {
+    "id": 657278,
+    "molecule_name": "beryllium_atom",
+    "basis_name": "cc-pVDZ",
+    "method_name": "CASSCF(4,5)",
+    "status": "running",
+    "properties": [
+      "density",
+      "on_top",
+      "intracule"
+    ]
+  },
+  "results": {
+    "energy": {
+      "hf": -14.6154039
+    },
+    "calculation_time": "0 days  0 hours  0 minutes  4.9 seconds.",
+    "status": "completed"
+  }
+}

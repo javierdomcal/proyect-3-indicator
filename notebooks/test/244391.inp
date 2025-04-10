@@ -1,0 +1,18 @@
+test_input
+$wfxfile
+244391.wfx
+$logfile
+no
+$Grid
+0.0 0 0.0
+0.0 0 0
+0.0 3 0.05
+$Grid_2
+.false.
+$Properties
+3
+density total
+on_top all
+pair_density_nucleus all
+$DM2files
+244391.dm2p 244391_hf.dm2p 244391_hfl.dm2p

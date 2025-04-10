@@ -1,0 +1,15 @@
+{
+  "format": "cube",
+  "dimensions": [
+    1,
+    1,
+    125
+  ],
+  "origin": [
+    0.0,
+    0.0,
+    0.0
+  ],
+  "path": "/home/javi/Desktop/Doctorado/proyect-3-indicator/results/214960/intracule.cube",
+  "atoms": 1
+}

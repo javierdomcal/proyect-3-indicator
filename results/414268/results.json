@@ -1,0 +1,20 @@
+{
+  "calculation_info": {
+    "id": 414268,
+    "molecule_name": "ethene",
+    "basis_name": "TZVP",
+    "method_name": "CASSCF(2,2)",
+    "status": "running",
+    "properties": [
+      "density",
+      "on_top"
+    ]
+  },
+  "results": {
+    "energy": {
+      "hf": -78.0896306
+    },
+    "calculation_time": "0 days  0 hours  0 minutes 18.1 seconds.",
+    "status": "completed"
+  }
+}

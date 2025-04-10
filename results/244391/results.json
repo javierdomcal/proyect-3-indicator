@@ -1,0 +1,21 @@
+{
+  "calculation_info": {
+    "id": 244391,
+    "molecule_name": "helium",
+    "basis_name": "5SPD",
+    "method_name": "CASSCF(2,2)",
+    "status": "running",
+    "properties": [
+      "density",
+      "on_top",
+      "pair_density_nucleus"
+    ]
+  },
+  "results": {
+    "energy": {
+      "hf": -2.8656151
+    },
+    "calculation_time": "0 days  0 hours  0 minutes  5.4 seconds.",
+    "status": "completed"
+  }
+}

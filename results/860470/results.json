@@ -1,0 +1,21 @@
+{
+  "calculation_info": {
+    "id": 860470,
+    "molecule_name": "neon",
+    "basis_name": "cc-pVDZ",
+    "method_name": "CASSCF(10,10)",
+    "status": "running",
+    "properties": [
+      "density",
+      "on_top",
+      "intracule"
+    ]
+  },
+  "results": {
+    "energy": {
+      "hf": -128.6115364
+    },
+    "calculation_time": "0 days  0 hours  0 minutes 20.7 seconds.",
+    "status": "completed"
+  }
+}

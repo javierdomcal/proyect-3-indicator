@@ -9,6 +9,7 @@ from .cluster.connection import ClusterConnection
 from .cluster.transfer import FileTransfer
 from .jobs.manager import JobManager
 from .handler.calculation import CalculationHandler
+from .handler.parallel import ParallelHandler
 from .database import get_database, close_database
 
 logger = logging.getLogger(__name__)

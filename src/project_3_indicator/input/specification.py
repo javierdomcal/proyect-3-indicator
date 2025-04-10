@@ -6,7 +6,6 @@ from ..input.methods import Method
 from ..input.basis import BasisSet
 from ..input.grid import Grid
 from ..input.properties import Properties
-from ..utils.parsers import get_atomic_number
 
 class InputSpecification:
     # Hardcoded dictionary for imported basis sets and their specific atoms
@@ -80,8 +79,14 @@ class InputSpecification:
         else:
             self.config = input.get("config", "SP")
 
+        print(f"Configuration: {self.config}")
+        print(f"Method: {self.method.name}")
+        print(f"Basis: {self.basis.name}")
+        print(f"Molecule: {self.molecule.name}")
+
         # Set up grid
         self.grid = Grid(input.get("grid", {}), self.molecule)
+        print(f"Grid: {self.grid.to_string()}")
 
 
         # Set properties
@@ -108,23 +113,17 @@ class InputSpecification:
         Validate compatibility of basis set with molecule.
         """
         # Harmonium case (existing check)
-        if hasattr(self.molecule, 'is_harmonium') and self.molecule.is_harmonium:
-            if hasattr(self.basis, 'is_even_tempered') and self.basis.is_even_tempered:
-                if self.molecule.omega != self.basis.omega:
-                    raise ValueError(
-                        "Inconsistent omega values for harmonium molecule and even-tempered basis set."
-                    )
+
 
         # Even-tempered basis validation
         if hasattr(self.basis, 'is_even_tempered') and self.basis.is_even_tempered:
             # Check for helium-like atom case (single atom with 2 electrons)
             if (self.molecule.count_atoms() == 1 and self.molecule.count_electrons() == 2):
-                if self.basis.is_even_tempered and self.basis.molecule is None:
-                    self.basis.molecule = self.molecule
+
 
                 # Check atomic number is within supported range
                 symbol = self.molecule.unique_atoms()[0] if self.molecule.unique_atoms() else "He"
-                atomic_number = get_atomic_number(symbol)
+                atomic_number = self.molecule.get_atomic_number(symbol)
 
                 # Only He to N (atomic numbers 2-7) are supported
                 if atomic_number < 2 or atomic_number > 7:
@@ -133,12 +132,10 @@ class InputSpecification:
                         f"Provided atomic number: {atomic_number}"
                     )
 
-                # Set the molecule reference in the basis if not already set
-                if self.basis.molecule is None:
-                    self.basis.molecule = self.molecule
+
 
                 if self.basis.alpha is None or self.basis.beta is None:
-                    self.basis.load_even_tempered_coefficients()
+                    self.basis.load_even_tempered_coefficients(self.molecule)
 
                 return
 

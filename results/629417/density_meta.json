@@ -1,0 +1,15 @@
+{
+  "format": "cube",
+  "dimensions": [
+    81,
+    1,
+    1
+  ],
+  "origin": [
+    -2.0,
+    0.0,
+    1.264
+  ],
+  "path": "/home/javi/Desktop/Doctorado/proyect-3-indicator/results/629417/density.cube",
+  "atoms": 6
+}
